@@ -30,20 +30,48 @@ This study utilizes the German Traffic Sign Recognition Benchmark (GTSRB), a wel
 
 The dataset is divided into training and testing sets, with approximately 39,209 images for training and 12,630 images for testing. Each image in the dataset is annotated with its corresponding traffic sign class, making it suitable for supervised learning approaches.
 
+### Fine-tune
+
+The SWIN Transformer was trained on the GTSRB dataset using a supervised learning approach, leveraging data augmentation techniques such as random horizontal flips, rotations, and resized crops to improve generalization and robustness to real-world variations. The model was initialized with pretrained ImageNet weights and fine-tuned for 43 traffic sign classes using the AdamW optimizer and cross-entropy loss. Training was performed for 10 epochs with a batch size of 128, and validation accuracy was monitored after each epoch to track performance and prevent overfitting. After training, the model achieved a validation accuracy of approximately 98% and a test accuracy of around 97%, demonstrating strong recognition performance across diverse traffic sign categories.
 
 ## Explainability Method: Shapley-CAM
+
 ### What is Shapley-CAM?
-- Conceptual idea: combining Shapley values and CAM
-- Benefits over traditional CAM-based methods
+
+Shapley-CAM is an interpretability technique that marries the Shapley values from game theory with Class Activation Mapping technique. Unlike gradient-based or activation-based CAM methods that weight feature maps by their activation strength or gradient magnitude, Shapley-CAM computes each map's exact marginal contribution to the prediction under all possible coalitions. By doing so, Shapley-CAM ensures that contributions sum to the model output (efficiency), treat identical players equally (symmetry), and assign zero value to non-influential players (dummy).
+
+This fusion yields maps that reduce noise and highlight only those regions that truly impact the prediction. Shapley-CAM's theoretical foundation provides interpretability guarantees often absent in standard CAM variants, making it valuable for safety-critical applications.
 
 ### How it Works
-- Steps of the Shapley-CAM algorithm
-- Integration with transformer-based models
 
-## Applying Shapley-CAM to SWIN
-- Adapting Shapley-CAM for hierarchical attention
-- Practical implementation steps
-- Computational considerations
+Shapley-CAM frames the attribution of class predictions as a cooperative game where each feature map (in CNNs) or attention head/window (in transformers) is considered as a "player". To estimate each player's contribution, method approximates Shapley value of concrete player by sampling random subsets of other players: for each sampled coalition S, we compute the model's target-class score with S alone, then with S ∪ {i}, and record the change. Averaging these marginal contributions across many samples yields φ_i, a fair measure of how much adding feature map i shifts the prediction toward the target class.
+
+Once the Shapley values are estimated, Shapley-CAM multiplies each feature map (or attention map) by its corresponding φ_i, sums them spatially, and applies a ReLU to focus on positive contributions. This weighted aggregation produces a single two-dimensional saliency map that highlights image regions most responsible for the model's decision, satisfying axiomatic properties (efficiency, symmetry, dummy, additivity) that traditional CAM approaches lack.
+
+![image](/ShapleyCAMforSWIN/CAM_comparison.png)
+###### *Visualization of the CAM techniques comparison for 3 classes (tiger cat, boxer, and yellow lady's slipper)*
+
+
+## Applying Shapley‑CAM to SWIN Transformers
+
+In our implementation, we leverage gradient‑based Shapley approximations to efficiently compute contribution scores for the hierarchical attention windows of the SWIN Transformer. We place forward and backward hooks on the target normalization layer (`LayerNorm`) to capture activations and gradients, then compute Hessian–vector products (HVPs) to obtain Shapley weights. The pipeline consists of four main steps:
+
+1. **Model Loading and Preparation**  
+   ‑ Instantiate the SWIN model (e.g., `swin_tiny_patch4_window7_224`) and load fine‑tuned weights from a checkpoint.  
+
+2. **CAM Initialization**  
+   ‑ Create a `ShapleyCAM` object with:  
+     - The `LayerNorm` layer as the target for feature capture.  
+     - A `reshape_transform` that maps windowed attention back to spatial dimensions.  
+   ‑ Hooks record activations and gradients during a forward‑backward pass.
+
+3. **Heatmap Computation**  
+   ‑ **Forward pass:** compute class scores and trigger activation hooks.  
+   ‑ **Backward pass:** backpropagate the target class score to collect gradients and HVPs.  
+   ‑ **Weight computation:** for each window \(i\), compute  
+     {{<katex display>}}\phi_i = g_i - \frac{1}{2}\mathrm{HVP}_i{{</katex>}}
+     where {{<katex>}}g_i{{</katex>}} is the gradient and {{<katex>}}\mathrm{HVP}_i{{</katex>}} the Hessian–vector product.
+   - **Aggregation:** multiply each attention map by {{<katex>}}\phi_i{{</katex>}}, apply ReLU, resize to input resolution, and normalize.
 
 ## Results and Visualizations
 - Example outputs with Shapley-CAM overlays
