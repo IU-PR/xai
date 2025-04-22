@@ -57,7 +57,7 @@ Once the Shapley values are estimated, Shapley-CAM multiplies each feature map (
 In our implementation, we leverage gradient‑based Shapley approximations to efficiently compute contribution scores for the hierarchical attention windows of the SWIN Transformer. We place forward and backward hooks on the target normalization layer (`LayerNorm`) to capture activations and gradients. To refine these first-order gradient scores, we compute Hessian–vector products (HVPs). The HVP essentially measures how the gradient itself changes with respect to the activations, providing second-order information without calculating the full, computationally expensive Hessian matrix. This is often approximated using techniques like finite differences on the gradients (e.g., {{<katex>}}\text{HVP} \approx \frac{\nabla L(A + \epsilon v) - \nabla L(A - \epsilon v)}{2\epsilon}{{</katex>}} for a small perturbation {{<katex>}}\epsilon{{</katex>}} and vector {{<katex>}}v{{</katex>}}). These HVPs allow us to estimate the Shapley weights {{<katex>}}\phi_i{{</katex>}} more accurately.The pipeline consists of four main steps:
 
 1. **Model Loading and Preparation**  
-   ‑ Instantiate the SWIN model (e.g., `swin_tiny_patch4_window7_224`) and load fine‑tuned weights from a checkpoint.  
+   ‑ Instantiate the SWIN model and load fine‑tuned weights from a checkpoint.  
 
 2. **CAM Initialization**  
    ‑ Create a `ShapleyCAM` object with:  
