@@ -183,6 +183,10 @@ In the heatmap, the model appears to pay significant attention to the person in 
 </div> 
 <br>
 
+## Our Implementation
+
+### [Google Colab Notebook](https://colab.research.google.com/drive/1kW_jmrPhzUnE-2UA5ptx4x1X7bSx8SJR?usp=sharing)
+
 
 ## References
 - [CAMs as Shapley Value-based Explainers](https://arxiv.org/pdf/2501.06261v1)
