@@ -48,7 +48,7 @@ Shapley-CAM frames the attribution of class predictions as a cooperative game wh
 
 Once the Shapley values are estimated, Shapley-CAM multiplies each feature map (or attention map) by its corresponding φ_i, sums them spatially, and applies a ReLU to focus on positive contributions. This weighted aggregation produces a single two-dimensional saliency map that highlights image regions most responsible for the model's decision, satisfying axiomatic properties (efficiency, symmetry, dummy, additivity) that traditional CAM approaches lack.
 
-![image](/ShapleyCAMforSWIN/CAM_comparison.png)
+![image](/ShapleyCAM_SWIN/CAM_comparison.png)
 ###### *Visualization of the CAM techniques comparison for 3 classes (tiger cat, boxer, and yellow lady's slipper)*
 
 
@@ -74,21 +74,99 @@ In our implementation, we leverage gradient‑based Shapley approximations to ef
    - **Aggregation:** multiply each attention map by {{<katex>}}\phi_i{{</katex>}}, apply ReLU, resize to input resolution, and normalize.
 
 ## Results and Visualizations
-- Example outputs with Shapley-CAM overlays
-- Comparison with other explainability methods (optional)
-- Insights gained from visualizations
 
-## Challenges and Limitations
-- Issues encountered during integration
-- Limitations of Shapley-CAM in transformer explainability
+### GTSRB test images
+
+We have calculated quantitative metrics on 12630 images from the GTSRB dataset:
+- Pointing Game Accuracy: 0.9617
+- Average IoU: 0.6034
+- Total ADCC: 0.4683
+- Total Average Drop: 0.0302
+- Total Coherency: 0.8738
+- Total Complexity: 0.7482
+- Total Inc: 0.3152
+- Total Drop Indeletion: 0.6133
+
+Below you can see several examples from the test dataset: 
+
+<br>
+<div style="display: flex; gap: 0;">
+  <img src="/ShapleyCAM_SWIN/ex1.png" style="height:150px; width:150px; border:none;"/>
+  <img src="/ShapleyCAM_SWIN/ex2.png" style="height:150px; margin:0; padding:0; border:none;"/>
+  <img src="/ShapleyCAM_SWIN/ex3.png" style="height:150px; margin:0; padding:0; border:none;"/>
+  <img src="/ShapleyCAM_SWIN/ex4.png" style="height:150px; margin:0; padding:0; border:none;"/>
+</div> 
+<br>
+
+### Ambiguous cases
+
+We have also applied Shapley‑CAM to representative traffic sign images from the images found in the internet. The following figures show the reference image of the class that we want to predict alongside its Shapley‑CAM generated heatmap:
+
+**Figure 1**
+
+The top heatmap shows the Swin Transformer's attention when classifying the "70" speed limit sign—focusing mainly on the circular sign. The bottom-right heatmap is the Shapley-CAM result for the bend road warning sign, revealing that the model attends more to the triangular warning sign.
+
+<div style="display: flex; gap: 100px;">
+  <img src="/ShapleyCAM_SWIN/70.png" style="height:150px; width:150px; border:none;"/>
+  <img src="/ShapleyCAM_SWIN/1_70.png" style="height:150px; margin:0; padding:0; border:none;"/>
+</div> 
+
+<div style="display: flex; gap: 100px;">
+  <img src="/ShapleyCAM_SWIN/bend.png" style="height:150px; width:150px; border:none;"/>
+  <img src="/ShapleyCAM_SWIN/1_bend.png" style="height:150px; margin:0; padding:0; border:none;"/>
+</div>
+<br>
+
+**Figure 2**
+
+The top-right heatmap corresponds to the "30" speed limit sign, while the bottom-right Shapley-CAM heatmap corresponds to the road work sign. The attention is nicely distributed—focused on the relevant parts of each sign.
+
+<br>
+<div style="display: flex; gap: 100px;">
+  <img src="/ShapleyCAM_SWIN/30.png" style="height:150px; width:150px; border:none;"/>
+  <img src="/ShapleyCAM_SWIN/2_30.png" style="height:150px; margin:0; padding:0; border:none;"/>
+</div> 
+
+<div style="display: flex; gap: 100px;">
+  <img src="/ShapleyCAM_SWIN/worker.png" style="height:150px; width:150px; border:none;"/>
+  <img src="/ShapleyCAM_SWIN/2_work.png" style="height:150px; margin:0; padding:0; border:none;"/>
+</div>
+<br>
+
+**Figure 3**
+
+The top-right heatmap primarily highlights the 30 speed limit sign, which aligns with the intended target. However, there's also attention spillover onto the no-overtaking sign below, which suggests the model isn't perfectly isolating the relevant region. Nevertheless, in the bottom-right heatmap, the focus is mostly on the no-overtaking sign.
+
+<br>
+<div style="display: flex; gap: 100px;">
+  <img src="/ShapleyCAM_SWIN/30.png" style="height:150px; width:150px; border:none;"/>
+  <img src="/ShapleyCAM_SWIN/3_30.png" style="height:150px; margin:0; padding:0; border:none;"/>
+</div> 
+
+<div style="display: flex; gap: 100px;">
+  <img src="/ShapleyCAM_SWIN/cars.png" style="height:150px; width:150px; border:none;"/>
+  <img src="/ShapleyCAM_SWIN/3_cars.png" style="height:150px; margin:0; padding:0; border:none;"/>
+</div>
+<br>
+
+**Figure 4**
+
+In the heatmap, the model appears to pay significant attention to the person in the warning sign. This suggests the model effectively identifies the pattern.
+
+<br>
+<div style="display: flex; gap: 100px;">
+  <img src="/ShapleyCAM_SWIN/worker.png" style="height:150px; width:150px; border:none;"/>
+  <img src="/ShapleyCAM_SWIN/4_toilet.png" style="height:150px; margin:0; padding:0; border:none;"/>
+</div> 
+<br>
+
 
 ## Conclusion
-- Summary of findings
-- Usefulness of Shapley-CAM in model interpretation
-- Future directions for improvement
+In this work, we integrated Shapley‑value theory with Class Activation Mapping to interpret Swin Transformer predictions on the GTSRB dataset. Our approach:
+- todo
+- todo
 
 ## References
-- Links to Shapley-CAM paper/repo
-- SWIN Transformer paper
-- Traffic Sign dataset (e.g., GTSRB)
-
+- [CAMs as Shapley Value-based Explainers](https://arxiv.org/pdf/2501.06261v1)
+- [SWIN Transformer](https://arxiv.org/pdf/2103.14030)
+- [Traffic Sign dataset](https://www.kaggle.com/datasets/meowmeowmeowmeowmeow/gtsrb-german-traffic-sign/data)
