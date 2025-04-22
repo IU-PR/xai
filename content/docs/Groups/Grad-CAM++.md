@@ -13,9 +13,9 @@ title: "Grad-CAM++"
 
 ## Explainable AI (XAI): An Overview
 
-As machine learning models grow more complex, it becomes harder to understand *why* they make certain predictions. This black-box nature isn’t always a problem in low-risk settings, but in critical fields like healthcare or finance, lack of transparency can be risky or even harmful.
+As machine learning models grow more complex, it becomes harder to understand why they make certain predictions. This black-box nature isn’t always a problem in low-risk settings, but in critical fields like healthcare or finance, lack of transparency can be risky or even harmful.
 
-**Explainable AI (XAI)** is a set of techniques designed to shed light on a model’s decision-making process. The idea is to go beyond just high accuracy—to also understand *what* parts of the input the model focused on, *how* it reached a conclusion, and *whether* the reasoning seems reasonable or flawed.
+**Explainable AI (XAI)** is a set of techniques designed to shed light on a model’s decision-making process. The idea is to go beyond just high accuracy—to also understand what parts of the input the model focused on, how it reached a conclusion, and whether the reasoning seems reasonable or flawed.
 
 XAI methods help build trust in models, allow for better debugging, and support regulatory requirements (like GDPR). Some popular tools and methods in this area include:
 
@@ -24,7 +24,7 @@ XAI methods help build trust in models, allow for better debugging, and support 
 - **SHAP** (SHapley Additive exPlanations) – Assigns importance scores to features based on cooperative game theory.
 - **Grad-CAM** and **Grad-CAM++** – Visualize which regions of an image a CNN focused on when making a classification.
 
-In essence, XAI helps open the *black box* of deep learning and makes models not just powerful, but also understandable and trustworthy.
+In essence, XAI helps open the black box of deep learning and makes models not just powerful, but also understandable and trustworthy.
 
 ---
 
@@ -46,7 +46,7 @@ The key equation for Grad-CAM++ is the following:
 
 <div align="center">
   $$
-  \text{Grad-CAM}^{++}(\mathbf{A}, \mathbf{C}) = \sum_{i} \sum_{j} \alpha_{ij} \cdot \text{ReLU}\left(\sum_{k} \frac{\partial y_{C}}{\partial A_{ijk}} \right) \cdot A_{ijk}
+  \text{Grad-CAM}{++}(\mathbf{A}, \mathbf{C}) = \sum_{i} \sum_{j} \alpha_{ij} \cdot \text{ReLU}\left(\sum_{k} \frac{\partial y_{C}}{\partial A_{ijk}} \right) \cdot A_{ijk}
   $$
 </div>
 
@@ -72,7 +72,7 @@ The main idea behind Grad-CAM++ is to assign better importance weights to the fe
 | Handles multiple objects | Poor             | Good             | Good             |
 | Computational efficiency | High             | Moderate         | Low              |
 
-Grad-CAM++ builds on the strengths of Grad-CAM by using more complex derivatives to better weigh the importance of each activation. While Score-CAM avoids gradients altogether and uses activation maps weighted by class scores, it is more computationally intensive due to multiple forward passes. Grad-CAM++ thus strikes a balance between interpretability and efficiency.
+Grad-CAM++ builds on the strengths of Grad-CAM by using more complex derivatives to better weigh the importance of each activation. While CAM avoids gradients altogether and uses activation maps weighted by class scores, it can be more computationally intensive due to the need for multiple forward passes. Grad-CAM++ thus strikes a balance between interpretability and efficiency.
 
 ![An-overview-of-all-the-three-methods-CAM-Grad-CAM-GradCAM-with-their-respective](/Grad-CAM++/comp.png)
 
