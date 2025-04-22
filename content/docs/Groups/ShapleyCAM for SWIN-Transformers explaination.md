@@ -44,7 +44,7 @@ This fusion yields maps that reduce noise and highlight only those regions that 
 
 ### How it Works
 
-Shapley-CAM frames the attribution of class predictions as a cooperative game where each feature map (in CNNs) or attention head/window (in transformers) is considered as a "player". To estimate each player's contribution, method approximates Shapley value of concrete player by sampling random subsets of other players: for each sampled coalition S, we compute the model's target-class score with S alone, then with S ∪ {i}, and record the change. Averaging these marginal contributions across many samples yields φ_i, a fair measure of how much adding feature map i shifts the prediction toward the target class.
+Shapley-CAM frames the attribution of class predictions as a cooperative game where each feature map (in CNNs) or attention head/window (in transformers) is considered as a "player". To estimate each player's contribution, method approximates Shapley value of concrete player by sampling random subsets of other players: for each sampled coalition S, we compute the model's target-class score with S alone, then with S ∪ i, and record the change. Averaging these marginal contributions across many samples yields φ_i, a fair measure of how much adding feature map i shifts the prediction toward the target class.
 
 Once the Shapley values are estimated, Shapley-CAM multiplies each feature map (or attention map) by its corresponding φ_i, sums them spatially, and applies a ReLU to focus on positive contributions. This weighted aggregation produces a single two-dimensional saliency map that highlights image regions most responsible for the model's decision, satisfying axiomatic properties (efficiency, symmetry, dummy, additivity) that traditional CAM approaches lack.
 
@@ -54,7 +54,7 @@ Once the Shapley values are estimated, Shapley-CAM multiplies each feature map (
 
 ## Applying Shapley‑CAM to SWIN Transformers
 
-In our implementation, we leverage gradient‑based Shapley approximations to efficiently compute contribution scores for the hierarchical attention windows of the SWIN Transformer. We place forward and backward hooks on the target normalization layer (`LayerNorm`) to capture activations and gradients, then compute Hessian–vector products (HVPs) to obtain Shapley weights. The pipeline consists of four main steps:
+In our implementation, we leverage gradient‑based Shapley approximations to efficiently compute contribution scores for the hierarchical attention windows of the SWIN Transformer. We place forward and backward hooks on the target normalization layer (`LayerNorm`) to capture activations and gradients. To refine these first-order gradient scores, we compute Hessian–vector products (HVPs). The HVP essentially measures how the gradient itself changes with respect to the activations, providing second-order information without calculating the full, computationally expensive Hessian matrix. This is often approximated using techniques like finite differences on the gradients (e.g., {{<katex>}}\text{HVP} \approx \frac{\nabla L(A + \epsilon v) - \nabla L(A - \epsilon v)}{2\epsilon}{{</katex>}} for a small perturbation {{<katex>}}\epsilon{{</katex>}} and vector {{<katex>}}v{{</katex>}}). These HVPs allow us to estimate the Shapley weights {{<katex>}}\phi_i{{</katex>}} more accurately.The pipeline consists of four main steps:
 
 1. **Model Loading and Preparation**  
    ‑ Instantiate the SWIN model (e.g., `swin_tiny_patch4_window7_224`) and load fine‑tuned weights from a checkpoint.  
@@ -62,7 +62,21 @@ In our implementation, we leverage gradient‑based Shapley approximations to ef
 2. **CAM Initialization**  
    ‑ Create a `ShapleyCAM` object with:  
      - The `LayerNorm` layer as the target for feature capture.  
-     - A `reshape_transform` that maps windowed attention back to spatial dimensions.  
+     - A `reshape_transform` function that converts the flattened token sequence back into a 2D feature grid of shape `(B, channels, H, W)`. For example:
+       ```python
+       # For example input ()
+       def reshape_transform(x, height=7, width=7):
+           # x: (B(batch), num_heads, tokens, channels)
+           # where tokens = H * W, ch
+           # channels = embedding dimension / number of attention heads
+           # Step 1: swap 'tokens' and 'channels' axes
+           x = x.transpose(2, 3)          # -> (B, num_heads, channels, tokens)
+           # Step 2: move 'num_heads' into the channel dimension
+           x = x.transpose(1, 2)          # -> (B, channels, num_heads, tokens)
+           # Step 3: reshape the last two dims (num_heads, tokens) into (height, width)
+           return x.reshape(x.shape[0], x.shape[-1], height, width) # -> (B(batch), channels, H, W)
+       ```
+       This ensures each window's activation (or gradient) map is placed at its correct spatial location in the final CAM heatmap.
    ‑ Hooks record activations and gradients during a forward‑backward pass.
 
 3. **Heatmap Computation**  
@@ -88,14 +102,13 @@ We have calculated quantitative metrics on 12630 images from the GTSRB dataset:
 - Total Drop Indeletion: 0.6133
 
 Below you can see several examples from the test dataset: 
-
 <br>
 <div style="display: flex; gap: 0;">
-  <img src="/ShapleyCAM_SWIN/ex1.png" style="height:150px; width:150px; border:none;"/>
-  <img src="/ShapleyCAM_SWIN/ex2.png" style="height:150px; margin:0; padding:0; border:none;"/>
-  <img src="/ShapleyCAM_SWIN/ex3.png" style="height:150px; margin:0; padding:0; border:none;"/>
-  <img src="/ShapleyCAM_SWIN/ex4.png" style="height:150px; margin:0; padding:0; border:none;"/>
-</div> 
+  <img src="/ShapleyCAM_SWIN/ex1.png" style="height:150px; width:25%; border:none;"/>
+  <img src="/ShapleyCAM_SWIN/ex2.png" style="height:150px; width:25%; margin:0; padding:0; border:none;"/>
+  <img src="/ShapleyCAM_SWIN/ex3.png" style="height:150px; width:25%; margin:0; padding:0; border:none;"/>
+  <img src="/ShapleyCAM_SWIN/ex4.png" style="height:150px; width:25%; margin:0; padding:0; border:none;"/>
+</div>
 <br>
 
 ### Ambiguous cases
