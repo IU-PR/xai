@@ -32,7 +32,7 @@ The dataset is divided into training and testing sets, with approximately 39,209
 
 ### Fine-tune
 
-The SWIN Transformer was trained on the GTSRB dataset using a supervised learning approach, leveraging data augmentation techniques such as random horizontal flips, rotations, and resized crops to improve generalization and robustness to real-world variations. The model was initialized with pretrained ImageNet weights and fine-tuned for 43 traffic sign classes using the AdamW optimizer and cross-entropy loss. Training was performed for 10 epochs with a batch size of 128, and validation accuracy was monitored after each epoch to track performance and prevent overfitting. After training, the model achieved a validation accuracy of approximately 98% and a test accuracy of around 97%, demonstrating strong recognition performance across diverse traffic sign categories.
+The SWIN Transformer (`swin_tiny_patch4_window7_224`) was trained on the GTSRB dataset, leveraging data augmentation techniques such as random horizontal flips, rotations, and resized crops to improve generalization and robustness to real-world variations. The model was initialized with pretrained ImageNet weights and fine-tuned for 43 traffic sign classes using the AdamW optimizer and cross-entropy loss. Training was performed for 10 epochs with a batch size of 128, and validation accuracy was monitored after each epoch to track performance and prevent overfitting. After training, the model achieved a validation accuracy of approximately 98% and a test accuracy of around 97%, demonstrating strong recognition performance across diverse traffic sign categories.
 
 ## Explainability Method: Shapley-CAM
 
@@ -100,6 +100,16 @@ We have calculated quantitative metrics on 12630 images from the GTSRB dataset:
 - Total Complexity: 0.7482
 - Total Inc: 0.3152
 - Total Drop Indeletion: 0.6133
+
+**Metrics Explanation:**
+- **Pointing Game Accuracy**: Measures if the point of maximum activation in the explanation falls within the ground truth object.
+- **Average IoU**: Intersection over Union between the explanation heatmap and ground truth regions.
+- **Total ADCC**: Average Drop in Confidence when Critical pixels identified by Shapley-CAM are removed.
+- **Total Average Drop**: The minimal drop in confidence when random pixels are removed validates that our explanation correctly focuses on impactful regions.
+- **Total Coherency**: Measures consistency of explanations across different inputs.
+- **Total Complexity**: Evaluates explanation detail level.
+- **Total Inc**: Measures confidence increase when only pixels identified as important are kept.
+- **Total Drop Indeletion (0.6133)**: Confidence drop when pixels marked unimportant are removed.
 
 Below you can see several examples from the test dataset: 
 <br>
@@ -173,11 +183,6 @@ In the heatmap, the model appears to pay significant attention to the person in 
 </div> 
 <br>
 
-
-## Conclusion
-In this work, we integrated Shapley‑value theory with Class Activation Mapping to interpret Swin Transformer predictions on the GTSRB dataset. Our approach:
-- todo
-- todo
 
 ## References
 - [CAMs as Shapley Value-based Explainers](https://arxiv.org/pdf/2501.06261v1)
