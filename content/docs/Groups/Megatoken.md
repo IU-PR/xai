@@ -88,9 +88,6 @@ sequence.
 These scores are stored in a square matrix.
 Returning to the earlier example with `green` and `cat`, a high attention score in the row for `cat` and the column for
 `green` indicates that `green` strongly influences the updated representation of `cat`.
-
-TODO: EXAMPLE
-
 These scores are computed using the dot product of query and key vectors:
 {{<katex display>}} A = \text{softmax} \left( QK^T \right) {{</katex>}}
 
@@ -112,8 +109,7 @@ The attention mask is used to modify these scores.
 It allows us to selectively ignore certain tokens by setting their corresponding attention scores to very negative
 values (often negative infinity).
 After applying the softmax, these scores become effectively zero — ensuring that the model pays no attention to the
-masked tokens during that step.
-
+masked tokens.
 Summing up, to remove the token completely, we can:
 
 1. Set the column entries of pruned tokens to {{<katex>}}-\infty{{</katex>}} so they can't influence other tokens.
@@ -168,6 +164,13 @@ g(0.5) = 0
 So complete removal of tokens won't allow criteria training.
 We need to allow intermediate states for tokens.
 Instead of completely removing the token, we will make it less likely to update others and to be updated.
-So we can use {{<katex>}}\ln(\alpha_i){{</katex>}} instead of conditionally defined
-{{<katex>}}g(\alpha_i){{</katex>}}.
+To achieve this, we can use {{<katex>}}\ln(\alpha_i){{</katex>}} instead of conditionally defined
+{{<katex>}}g(\alpha_i){{</katex>}}:
 
+{{<katex display>}}
+M_{j, k}(\alpha_i) =
+\begin{cases}
+\ln(\alpha_i), & \text{if } j = i \oplus k = i \\
+0, & \text{otherwise}
+\end{cases}
+{{</katex>}}
