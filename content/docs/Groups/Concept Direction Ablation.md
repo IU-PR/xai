@@ -63,9 +63,9 @@ Examples:
 > Model descriptions are printed via [torchinfo](https://pypi.org/project/torchinfo/).
 > You may observe transformer lens' hook points to ease manipulations and probing.
 
-#### [Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct)
+#### [Qwen-1_8B-chat](https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat)
 
-![Qwen2.5-7B-Instruct](/static/CDA4LLM/qwen-torchinfo.png)
+![Qwen-1_8B-chat](/static/CDA4LLM/Qwen-1_8B-chat/torchinfo.png)
 
 #### [YandexGPT-5-Lite-8B-instruct](https://huggingface.co/yandex/YandexGPT-5-Lite-8B-instruct)
 
@@ -94,11 +94,27 @@ With usage "difference-in-means" technique we found the `concept direction` (i.e
 
 $$ r_{i}^{(l)} = \mu_{i}^{(l)} - \nu_{i}^{(l)} $$
 
-### 4. ...
+### 4. Ablate Using Concept Direction
+
+$${a}_{l}' \leftarrow a_l - (a_l \cdot \widehat{r}) \widehat{r}$$
 
 ## Results
 
-### Qwen
+### Qwen-1_8B-chat
+
+On collecting probes section we noticed that Qwen model's activations tended to work for our purpose only with left padding enabled. Our explanation is that by taking activation on $ pos = -1 $ when left padding is enabled we get last actiavation on last token representing sequence (bold in example). And suddenly appears that it differs when sequence ends with padding token (probably with special / meaningless).
+
+**Left padded**
+
+> [pad] [pad] Some nice **example**
+
+**Right padded**
+
+> Some nice example [pad] **[pad]**
+
+| Left Padded                                                                      | Right Padded                                                                                        |
+| -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| ![Left Padded Qwen](/static/CDA4LLM/Qwen-1_8B-chat/blocks.14.hook_resid_pre.png) | ![Right Padded Qwen](</static/CDA4LLM/Qwen-1_8B-chat/blocks.14.hook_resid_pre%20(right_paded).png>) |
 
 ...
 
