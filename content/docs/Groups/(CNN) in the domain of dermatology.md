@@ -7,12 +7,6 @@ title: "Convolutional Neural Network (CNN) in the domain of dermatology"
 <style> .markdown a{text-decoration: underline !important;} </style>
 <style> .markdown h2{font-weight: bold;} </style>
 
-# *Convolutional Neural Network (CNN) in the domain of dermatology*
-
-**Authors: Nikita Kurkulskiu**
-
-*To see the implementation, visit [github project](https://github.com/dadagust/Xai-Project).*
-
 <!-- Example of image loading -->
 <!-- ![Diffusion Lens Diagram](/Diffusion%20Lens:%20Interpreting%20Text%20Encoders%20in%20Text-to-Image%20pipelines%20tuned%20using%20DreamBooth/dreambooth.png) -->
 
