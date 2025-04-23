@@ -120,9 +120,18 @@ Summing up, to remove the token completely, we can:
 2. Set the row entries to {{<katex>}}-\infty{{</katex>}} so they don't get updated by others.
 3. Keep the diagonal entry at 0 to allow self-reference and maintain numerical stability in softmax.
 
-TODO: EXAMPLE
+For example, to eliminate the first token, the attention mask will look like:
 
-Basically, our token selection mechanism is the function, which produces the attention mask, given the token:
+{{<katex display>}}
+\begin{pmatrix}
+0 & -\inf & -\inf & -\inf \\
+-\inf & 0 & \cdots & 0 \\
+\vdots & \vdots & \ddots & \vdots \\
+-\inf & 0 & \cdots & 0
+\end{pmatrix}
+{{</katex>}}
+
+Basically, token selection might be seen as the function, which produces the attention mask for each token:
 
 {{<katex display>}}
 M_{j, k}(\alpha_i) =
@@ -156,5 +165,9 @@ Thus, it is not differentiable:
 g(0.5) = 0
 {{</katex>}}
 
-To make it differentiable, we can use {{<katex>}}\ln(\alpha_i){{</katex>}} instead of conditionally defined
+So complete removal of tokens won't allow criteria training.
+We need to allow intermediate states for tokens.
+Instead of completely removing the token, we will make it less likely to update others and to be updated.
+So we can use {{<katex>}}\ln(\alpha_i){{</katex>}} instead of conditionally defined
 {{<katex>}}g(\alpha_i){{</katex>}}.
+
