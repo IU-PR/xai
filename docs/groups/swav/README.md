@@ -237,6 +237,7 @@ def visualize_cluster_members(embeddings, cluster_labels, query_idx, k=5):
 ---
 
 ## Results
+
 Clasters example
 
 ![Clasters example](../../../static/swav/cluster_members.png)
