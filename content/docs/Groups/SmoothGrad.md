@@ -117,7 +117,7 @@ Key parameters:
 
 When applied to image classification tasks, SmoothGrad consistently produces more interpretable saliency maps compared to the vanilla methods:
 
-![Comparison of saliency methods](saliency_maps.png)
+![Comparison of saliency methods](/SmoothGrad/saliency_maps.png)
 *Comparison of different saliency map methods: Vanilla Gradients, Integrated Gradients, and their respective SmoothGrad versions.*
 
 ### Vanilla Gradients vs. SmoothGrad
