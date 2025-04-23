@@ -1,5 +1,12 @@
+---
+weight: 1
+bookFlatSection: true
+title: "Explaining RL Agents in Atari Games"
+---
+
+
 # Explaining RL Agents in Atari Games
-Authors: Amir Bikineyev, Dzhavid Sadreddinov
+**Authors: Amir Bikineyev, Dzhavid Sadreddinov** 
 
 Link to the source: [github](https://github.com/sadjava/fullgradpp_xai)
 
