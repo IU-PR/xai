@@ -1,28 +1,13 @@
 # GradCAM, GradCAM++, and XGradCAM Implementation for APTOS2019 Dataset
 
+Author: Makar Brednikov
+
 ## Repository
 
-https://github.com/Sladkopar/XAI-retinopathy
-
-1. Clone this repository  
-3. Place the APTOS2019 dataset[\[4\]](#references) in the `data/aptos2019/` directory  
-4. Run the training in `models/` directory to fine-tune EfficientNetB0 and VGG19
-5. Generate visualizations in `visualization-final.ipynb`  
+Here is the GitHub repository with the project https://github.com/Sladkopar/XAI-retinopathy
 
 ## Overview
 I experimented on implementation and upgrading of class activation mapping technique - GradCAM - and applied it to the APTOS2019 (diabetic retinopathy detection dataset). I've tested the implementation of GradCAM, GradCAM++ and X-GradCAM on EfficientNetB0 and VGG19 models(fine-tuned for DR detection).
-
-## Table of Contents
-- [GradCAM, GradCAM++, and XGradCAM Implementation for APTOS2019 Dataset](#gradcam-gradcam-and-xgradcam-implementation-for-aptos2019-dataset)
-  - [Repository](#repository)
-  - [Overview](#overview)
-  - [Table of Contents](#table-of-contents)
-  - [Theoretical Background](#theoretical-background)
-    - [GradCAM](#gradcam)
-    - [GradCAM++](#gradcam-1)
-    - [X-GradCAM](#x-gradcam)
-  - [Results](#results)
-  - [References](#references)
 
 ## Theoretical Background
 
@@ -112,7 +97,9 @@ Neuron Importance Weights:
 
 Final Activation Map:
 
+{{<katex display>}}
 L_{XGradCAM}^c = ReLU\left(\sum_k \alpha_k^c A^k \right)
+{{</katex>}}
 
 ## Results
 
