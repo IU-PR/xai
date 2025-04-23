@@ -1,0 +1,165 @@
+<!doctype html><html lang=en-us dir=ltr><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="XAI for CycleGAN: Visual Insights via Score-CAM # XAI Course Project | Egor Machnev & Apollinaria Chernikova
+Link to the code: https://github.com/machnevegor/cyclepix
+Introduction # In recent years, the field of image-to-image translation has witnessed significant progress, largely driven by the development of generative adversarial networks (GANs).
+One of the most popular architectures in this domain is CycleGAN [1], which stands out for its ability to learn mappings between domains without the need for paired datasets."><meta name=theme-color content="#FFFFFF"><meta name=color-scheme content="light dark"><meta property="og:url" content="http://localhost:1313/docs/groups/scorecam_for_cyclegan/"><meta property="og:site_name" content="XAI"><meta property="og:title" content="Score-CAM for CycleGAN"><meta property="og:description" content="XAI for CycleGAN: Visual Insights via Score-CAM # XAI Course Project | Egor Machnev & Apollinaria Chernikova
+Link to the code: https://github.com/machnevegor/cyclepix
+Introduction # In recent years, the field of image-to-image translation has witnessed significant progress, largely driven by the development of generative adversarial networks (GANs).
+One of the most popular architectures in this domain is CycleGAN [1], which stands out for its ability to learn mappings between domains without the need for paired datasets."><meta property="og:locale" content="en_us"><meta property="og:type" content="article"><meta property="article:section" content="docs"><title>Score-CAM for CycleGAN | XAI</title>
+<link rel=manifest href=/manifest.json><link rel=icon href=/favicon.png type=image/x-icon><link rel=stylesheet href=/book.min.e832d4e94212199857473bcf13a450d089c3fcd54ccadedcfac84ed0feff83fb.css integrity="sha256-6DLU6UISGZhXRzvPE6RQ0InD/NVMyt7c+shO0P7/g/s=" crossorigin=anonymous><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/mathtex-script-type.min.js integrity=sha384-jiBVvJ8NGGj5n7kJaiWwWp9AjC+Yh8rhZY3GtAX8yU28azcLgoRo4oukO87g7zDT crossorigin=anonymous></script><script defer src=/flexsearch.min.js></script><script defer src=/en.search.min.7d9f26c474a08432d3b0cb4f498e61f362a17ce5ef9d59f294f4d08b34fc8ae8.js integrity="sha256-fZ8mxHSghDLTsMtPSY5h82KhfOXvnVnylPTQizT8iug=" crossorigin=anonymous></script><script defer src=/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js integrity="sha256-b2+Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC+NdcPIvZhzk=" crossorigin=anonymous></script></head><body dir=ltr><input type=checkbox class="hidden toggle" id=menu-control>
+<input type=checkbox class="hidden toggle" id=toc-control><main class="container flex"><aside class=book-menu><div class=book-menu-content><nav><h2 class=book-brand><a class="flex align-center" href=/><img src=/YELLOW_BAR.png alt=Logo><span><b>XAI</b></span></a></h2><div class=book-search><input type=text id=book-search-input placeholder=Search aria-label=Search maxlength=64 data-hotkeys=s/><div class="book-search-spinner hidden"></div><ul id=book-search-results></ul></div><ul><li><a href=/docs/groups/cam_and_secam/>CAM and SeCAM</a></li><li><a href=/docs/groups/diffusion-lens-interpreting-text-encoders-in-text-to-image-pipelines-tuned-using-dreambooth/>Diffusion Lens: Interpreting Text Encoders in Text-to-Image pipelines</a></li><li><a href=/docs/groups/dimensionality-reduction-in-nlp-visualizing-sentence-embeddings-with-umap-and-t-sne/>Dimensionality Reduction in NLP: Visualizing Sentence Embeddings with UMAP and t-SNE</a></li><li><a href=/docs/groups/example/>Example</a></li><li><a href=/docs/groups/ai-playing-geoguessr-explained/>Ai Playing Geo Guessr Explained</a></li><li><a href=/docs/groups/contrastive-grad-cam-consistency/>Contrastive Grad Cam Consistency</a></li><li><a href=/docs/groups/dndfs_shap/>Dndfs Shap</a></li><li><a href=/docs/groups/gradcam/>Grad Cam</a></li><li><a href=/docs/groups/integrated-gradients/>Integrated Gradients</a></li><li><a href=/docs/groups/kernel-shap/>Kernel Shap</a></li><li><a href=/docs/groups/rag/>Rag</a></li><li><a href=/docs/groups/shap_darya_and_viktoria/>Shap Darya and Viktoria</a></li><li><a href=/docs/groups/sverl_tac_toe/>Sverl Tac Toe</a></li><li><a href=/docs/groups/torchprism/>Torch Prism</a></li><li><a href=/docs/groups/xai_for_transformers/>Xai for Transformers</a></li><li><a href=/docs/groups/scorecam_for_cyclegan/ class=active>Score-CAM for CycleGAN</a></li></ul></nav><script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script></div></aside><div class=book-page><header class=book-header><div class="flex align-center justify-between"><label for=menu-control><img src=/svg/menu.svg class=book-icon alt=Menu>
+</label><strong>Score-CAM for CycleGAN</strong>
+<label for=toc-control><img src=/svg/toc.svg class=book-icon alt="Table of Contents"></label></div><aside class="hidden clearfix"><nav id=TableOfContents><ul><li><a href=#xai-for-cyclegan-visual-insights-via-score-cam>XAI for CycleGAN: Visual Insights via Score-CAM</a><ul><li><a href=#introduction>Introduction</a></li><li><a href=#methodology>Methodology</a><ul><li><a href=#what-is-cyclegan>What is CycleGAN?</a></li><li><a href=#training-pipeline>Training pipeline</a></li></ul></li><li><a href=#score-cam-for-discriminator-interpretation>Score-CAM for discriminator interpretation</a><ul><li><a href=#why-score-cam>Why Score-CAM?</a></li><li><a href=#code-implementation>Code implementation</a></li></ul></li><li><a href=#experiments-and-results>Experiments and results</a><ul><li><a href=#aivazovsky-dataset>Aivazovsky dataset</a></li><li><a href=#ghinli-dataset>Ghinli dataset</a></li></ul></li><li><a href=#conclusion>Conclusion</a></li></ul></li></ul></nav></aside></header><article class=markdown><h1 id=xai-for-cyclegan-visual-insights-via-score-cam>XAI for CycleGAN: Visual Insights via Score-CAM
+<a class=anchor href=#xai-for-cyclegan-visual-insights-via-score-cam>#</a></h1><p><strong>XAI Course Project | Egor Machnev & Apollinaria Chernikova</strong></p><p>Link to the code:
+<a href=https://github.com/machnevegor/cyclepix>https://github.com/machnevegor/cyclepix</a></p><h2 id=introduction>Introduction
+<a class=anchor href=#introduction>#</a></h2><p>In recent years, the field of image-to-image translation has witnessed
+significant progress, largely driven by the development of generative
+adversarial networks (GANs).</p><p>One of the most popular architectures in this domain is CycleGAN [1], which
+stands out for its ability to learn mappings between domains without the need
+for paired datasets.</p><p>However, like many GAN-based models, CycleGAN remains a &ldquo;black box&rdquo; system. Its
+internal decision-making processes are not clear, making it challenging to
+understand what features the model attends to during generation. A promising
+direction for addressing this limitation is to explore the interpretability of
+the discriminator, as it plays a crucial role in guiding the generator.</p><p>In this study, we aim to investigate the following hypothesis: <strong>Can the
+discriminator of a CycleGAN model be interpreted using the Score-CAM method?</strong></p><h2 id=methodology>Methodology
+<a class=anchor href=#methodology>#</a></h2><h3 id=what-is-cyclegan>What is CycleGAN?
+<a class=anchor href=#what-is-cyclegan>#</a></h3><p>The architecture of CycleGAN is built upon a GAN framework, consisting of two
+generator networks and two discriminator networks, designed to handle unpaired
+image to-image translation between two domains, A and B. Each generator $G:$
+$A → B$ and $F:$ $B → A$ is trained to translate images from one domain to
+another, while each discriminator $D_A$ and $D_B$ is trained to distinguish real
+images from fake images in its respective domain.</p><p>In the original CycleGAN paper, the authors propose using ResNet-based
+generators, which consist of a few convolutional layers, followed by several
+residual blocks, and then deconvolution layers. This architecture is effective
+at preserving the global structure of the input image while applying stylistic
+changes. In this project we consider two generator implementations:</p><ul><li><p>ResNet generator: closely follows the original CycleGAN design, using 9
+residual blocks (for 256×256 images). This model excels at maintaining the
+content structure while translating textures and colors.</p></li><li><p>U-Net generator: an alternative encoder-decoder architecture with skip
+connections between corresponding layers in the encoder and decoder. UNet is
+often used in Pix2Pix and similar tasks that require fine-grained alignment
+between input and output, making it a strong candidate for capturing more
+detailed spatial relationships.</p></li></ul><p align=center><img src=/ScoreCAM_for_CycleGAN/resnet.png alt="ResNet Generator Architecture" width=500><br><em>Fig 1: ResNet Generator Architecture</em></p><p align=center><img src=/ScoreCAM_for_CycleGAN/unet.png alt="Unet Generator Architecture" width=500><br><em>Fig 2: Unet Generator Architecture</em></p><h3 id=training-pipeline>Training pipeline
+<a class=anchor href=#training-pipeline>#</a></h3><p>The dataset used in this project consists of three distinct parts: 500 paintings
+by Ivan Aivazovsky, 1,600 screenshots from Studio Ghibli films, and 6,287
+real-world nature photographs.</p><p>All training experiments were conducted using the maximum computational
+resources available to us. The primary hardware used was the NVIDIA T4 GPU,
+which offers 15 GB of GPU memory and 29 GB of system memory (RAM). Due to
+limited hardware resources, the ResNet-based generator could only complete 13
+epochs, preventing it from reaching the intended 20 epochs. This limitation is
+important in our study as we will analyze interpretability with information that
+our models could be underfitting.</p><h2 id=score-cam-for-discriminator-interpretation>Score-CAM for discriminator interpretation
+<a class=anchor href=#score-cam-for-discriminator-interpretation>#</a></h2><h3 id=why-score-cam>Why Score-CAM?
+<a class=anchor href=#why-score-cam>#</a></h3><p>Score-CAM (Score-Weighted Class Activation Mapping) is a gradient-free visual
+explanation technique that generates class activation maps by directly
+leveraging the model’s output scores. Rather than relying on gradients — which
+can be noisy or undefined for non-classification outputs — Score-CAM works by</p><ol><li>Extracting activation maps from a convolutional layer.</li><li>Upsampling and normalizing each map to match the input size.</li><li>Using each activation map as a mask over the input image.</li><li>Passing the masked image through the model and measuring the output score (in
+our case, the mean patch-based realism).</li><li>Weighting each activation map by its corresponding score and combining them
+to produce the final heatmap.</li></ol><p align=center><img src=/ScoreCAM_for_CycleGAN/scorecam.png alt="ResNet Generator Architecture" width=500><br><em>Fig 3: Score-CAM pipeline</em></p><p>Based on the method architecture, we decieded that Score-CAM is well-suited to
+test our hypothesis of CycleGAN interpretability.</p><p>First, unlike gradient-based methods such as Grad-CAM, ScoreCAM does not rely on
+backpropagation to compute saliency. It uses only the model’s forward-passed
+outputs to determine which regions of the input image are most influential for
+the prediction. This gradient-free nature makes ScoreCAM more robust and stable,
+particularly in the context of GANs</p><p>Second, Score-CAM is compatible with patch-based discriminators such as
+PatchGAN, which is commonly used in CycleGAN architectures. Rather than
+producing a single output value, PatchGAN outputs a spatial grid (e.g., a [1, 1,
+30, 30] map), where each value corresponds to a patch of the image being
+classified as real or fake. To adapt ScoreCAM to this format, we compute the
+mean of the discriminator’s output map as a single representative score.</p><p>Finally, ScoreCAM is model-agnostic and easy to implement. It does not require
+any changes to the model’s architecture or access to internal gradients.</p><h3 id=code-implementation>Code implementation
+<a class=anchor href=#code-implementation>#</a></h3><p>Here we provide the function that implementы Score-CAM method</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>score_cam</span>(model, target_layer, input_tensor):
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>.</span>eval()
+</span></span><span style=display:flex><span>    activations <span style=color:#f92672>=</span> []
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Hook function to capture the output of the target layer during forward pass</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>forward_hook</span>(module, input, output):
+</span></span><span style=display:flex><span>        activations<span style=color:#f92672>.</span>append(output<span style=color:#f92672>.</span>detach())
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Register the forward hook on the target layer</span>
+</span></span><span style=display:flex><span>    handle <span style=color:#f92672>=</span> target_layer<span style=color:#f92672>.</span>register_forward_hook(forward_hook)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>with</span> torch<span style=color:#f92672>.</span>no_grad():
+</span></span><span style=display:flex><span>        output <span style=color:#f92672>=</span> model(input_tensor)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        feature_maps <span style=color:#f92672>=</span> activations[<span style=color:#ae81ff>0</span>][<span style=color:#ae81ff>0</span>]
+</span></span><span style=display:flex><span>        num_maps <span style=color:#f92672>=</span> feature_maps<span style=color:#f92672>.</span>shape[<span style=color:#ae81ff>0</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        cam <span style=color:#f92672>=</span> torch<span style=color:#f92672>.</span>zeros(input_tensor<span style=color:#f92672>.</span>shape[<span style=color:#ae81ff>2</span>:], dtype<span style=color:#f92672>=</span>torch<span style=color:#f92672>.</span>float32)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> range(num_maps):
+</span></span><span style=display:flex><span>            fmap <span style=color:#f92672>=</span> feature_maps[i]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#75715e># Upsample the feature map to the input size</span>
+</span></span><span style=display:flex><span>            fmap_resized <span style=color:#f92672>=</span> F<span style=color:#f92672>.</span>interpolate(
+</span></span><span style=display:flex><span>                fmap<span style=color:#f92672>.</span>unsqueeze(<span style=color:#ae81ff>0</span>)<span style=color:#f92672>.</span>unsqueeze(<span style=color:#ae81ff>0</span>), 
+</span></span><span style=display:flex><span>                size<span style=color:#f92672>=</span>input_tensor<span style=color:#f92672>.</span>shape[<span style=color:#ae81ff>2</span>:], 
+</span></span><span style=display:flex><span>                mode<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;bilinear&#39;</span>, 
+</span></span><span style=display:flex><span>                align_corners<span style=color:#f92672>=</span><span style=color:#66d9ef>False</span>
+</span></span><span style=display:flex><span>            )<span style=color:#f92672>.</span>squeeze(<span style=color:#ae81ff>0</span>)<span style=color:#f92672>.</span>squeeze(<span style=color:#ae81ff>0</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#75715e># Normalize the upsampled feature map to [0, 1]</span>
+</span></span><span style=display:flex><span>            fmap_norm <span style=color:#f92672>=</span> (fmap_resized <span style=color:#f92672>-</span> fmap_resized<span style=color:#f92672>.</span>min()) <span style=color:#f92672>/</span> (fmap_resized<span style=color:#f92672>.</span>max() <span style=color:#f92672>-</span> fmap_resized<span style=color:#f92672>.</span>min() <span style=color:#f92672>+</span> <span style=color:#ae81ff>1e-8</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#75715e># Multiply the normalized feature map with the input image (as a mask)</span>
+</span></span><span style=display:flex><span>            masked_input <span style=color:#f92672>=</span> input_tensor <span style=color:#f92672>*</span> fmap_norm<span style=color:#f92672>.</span>unsqueeze(<span style=color:#ae81ff>0</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#75715e># Get the model&#39;s output score for the masked input</span>
+</span></span><span style=display:flex><span>            score <span style=color:#f92672>=</span> model(masked_input)<span style=color:#f92672>.</span>mean()<span style=color:#f92672>.</span>item()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#75715e># Accumulate the weighted feature map into the CAM</span>
+</span></span><span style=display:flex><span>            cam <span style=color:#f92672>+=</span> fmap_resized <span style=color:#f92672>*</span> score
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Apply ReLU and normalize the final CAM to [0, 1]</span>
+</span></span><span style=display:flex><span>    cam <span style=color:#f92672>=</span> F<span style=color:#f92672>.</span>relu(cam)
+</span></span><span style=display:flex><span>    cam <span style=color:#f92672>=</span> (cam <span style=color:#f92672>-</span> cam<span style=color:#f92672>.</span>min()) <span style=color:#f92672>/</span> (cam<span style=color:#f92672>.</span>max() <span style=color:#f92672>-</span> cam<span style=color:#f92672>.</span>min() <span style=color:#f92672>+</span> <span style=color:#ae81ff>1e-8</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    handle<span style=color:#f92672>.</span>remove()
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> cam<span style=color:#f92672>.</span>cpu()<span style=color:#f92672>.</span>numpy()
+</span></span></code></pre></div><h2 id=experiments-and-results>Experiments and results
+<a class=anchor href=#experiments-and-results>#</a></h2><p>As previously menioned, we have four models after training process: two models
+for Aivazovsky dataset and two for Ghibli dataset. For interpretation we will
+use discriminators that choose if the image is style or not ($D_s$). All results
+will be evaluated only visually because of the whole concept of CycleGAN.</p><h3 id=aivazovsky-dataset>Aivazovsky dataset
+<a class=anchor href=#aivazovsky-dataset>#</a></h3><p>For the Aivazovsky dataset we chose random real images to transfer into style
+and random Aivazovsky&rsquo;s paintings to analyze the discriminator work.</p><p align=center><img src="/ScoreCAM_for_CycleGAN/aivazovsky real resnet.png" alt="Real image in Aivazovsky style ResNet" width=700><br><em>Fig 4: Real images in Aivazovsky style ResNet</em></p><p align=center><img src="/ScoreCAM_for_CycleGAN/aivazovsky paint resnet.png" alt="Aivazovsky's painting ResNet" width=700><br><em>Fig 5: Aivazovsky's paintings ResNet</em></p><p align=center><img src="/ScoreCAM_for_CycleGAN/aivazovsky real unet.png" alt="Real image in Aivazovsky style Unet" width=700><br><em>Fig 6: Real images in Aivazovsky style Unet</em></p><p align=center><img src="/ScoreCAM_for_CycleGAN/aivazovsky paint unet.png" alt="Aivazovsky's painting Unet" width=700><br><em>Fig 7: Aivazovsky's paintins Unet</em></p><p>We intentionally selected a variety of input images to better demonstrate how
+both the CycleGAN model and the interpretability method perform in different
+situations.</p><p>While working with the model, we discovered an additional limitation: the
+Aivazovsky-style generator does not work well with images that lack elements
+typical of the artist’s paintings. For example, snowy landscapes or nighttime
+scenes are usually translated poorly.</p><p>On the other hand, images that contain open skies and water — which are common
+themes in Aivazovsky’s art — are processed much better. To explore this
+observation further, we also tested the model on a few randomly chosen photos
+that include these kinds of landscapes.</p><p align=center><img src="/ScoreCAM_for_CycleGAN/aivazovsky real sea resnet.png" alt="Real sea images in Aivazovsky style ResNet" width=700><br><em>Fig 8: Real sea images in Aivazovsky style ResNet</em></p><p align=center><img src="/ScoreCAM_for_CycleGAN/aivazovsky real sea unet.png" alt="Real sea images in Aivazovsky style Unet" width=700><br><em>Fig 8: Real sea images in Aivazovsky style Unet</em></p><p>When comparing the two discriminator architectures, we observe that the
+U-Net-based discriminator tends to focus on more localized and fine-grained
+elements, whereas the ResNet-based discriminator attends to broader regions of
+the image. On randomly selected inputs, the two models highlight completely
+different areas, suggesting inconsistencies in what each model considers
+important. We hypothesize that this behavior may be partially due to
+undertraining. With extended training, it is likely that both models would learn
+to attend to more structured and semantically meaningful regions.</p><p>Despite these differences, we consistently observe that both discriminators tend
+to focus on visually distinctive features such as ships, waves, sky, coastlines,
+and cliffs — elements commonly found in Aivazovsky’s paintings.</p><p>While it is still difficult to draw definitive conclusions about the overall
+effectiveness of the models within the current dataset, we find that
+interpretability becomes more meaningful when we know what features to look for.
+This suggests that combining model interpretation with domain knowledge can
+improve our understanding of model behavior.</p><h3 id=ghinli-dataset>Ghinli dataset
+<a class=anchor href=#ghinli-dataset>#</a></h3><p>The same procedure for the ghibli dataset.</p><p align=center><img src="/ScoreCAM_for_CycleGAN/ghibli real resnet.png" alt="Real images in Ghibli style ResNet" width=700><br><em>Fig 9: Real images in Ghibli style ResNet</em></p><p align=center><img src="/ScoreCAM_for_CycleGAN/ghibli animation resnet.png" alt="Real Ghibli anime image ResNet" width=700><br><em>Fig 10: Real Ghibli anime image ResNet</em></p><p align=center><img src="/ScoreCAM_for_CycleGAN/ghibli real unet.png" alt="Real Ghibli anime image" width=700><br><em>Fig 11: Real images in Ghibli style Unet</em></p><p align=center><img src="/ScoreCAM_for_CycleGAN/ghibli animation unet.png" alt="Real images in Ghibli style Unet" width=700><br><em>Fig 12: Real Ghibli anime image Unet</em></p><p>A similar pattern can be observed here: the U-Net-based discriminator focuses on
+smaller, more detailed objects, while the ResNet-based model attends to broader,
+more general regions of the image.Additionally, since this dataset does not
+contain clear stylistic elements such as ships or the sea — which are common in
+Aivazovsky’s work — both models seem to shift their attention toward the way
+lines and textures are drawn rather than specific objects. This is especially
+noticeable on real images, where large portions of the heatmap highlight the
+painterly style of lines, brushstrokes, and textures. These areas are often
+marked in red, indicating that the discriminator considers them highly relevant
+when making its decision.</p><h2 id=conclusion>Conclusion
+<a class=anchor href=#conclusion>#</a></h2><p>In conclusion, we are generally satisfied with the results obtained in this
+study. While there are many aspects in which the models could still be improved
+— including further training, dataset refinement, and architectural tuning — the
+baseline models already demonstrate reasonable performance.</p><p>Most importantly, we have shown that Score-CAM can be effectively used as an
+interpretability method for the discriminator in CycleGAN. Given that
+interpretability methods for generative adversarial networks, and especially for
+discriminators, are still relatively scarce, this approach proves to be a
+promising and practical solution. Our findings suggest that Score-CAM offers
+meaningful visual explanations, highlighting areas that contribute most to the
+discriminator&rsquo;s decision-making process, and helping us better understand what
+these models actually learn.</p></article><footer class=book-footer><div class="flex flex-wrap justify-between"><div><a class="flex align-center" href=https://github.com/IU-PR/Capstone_project/tree/master//content/docs/Groups/ScoreCAM_for_CycleGAN.md target=_blank rel=noopener><img src=/svg/edit.svg class=book-icon alt=Edit>
+<span>Edit this page</span></a></div></div><script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script></footer><div class=book-comments></div><label for=menu-control class="hidden book-menu-overlay"></label></div><aside class=book-toc><div class=book-toc-content><nav id=TableOfContents><ul><li><a href=#xai-for-cyclegan-visual-insights-via-score-cam>XAI for CycleGAN: Visual Insights via Score-CAM</a><ul><li><a href=#introduction>Introduction</a></li><li><a href=#methodology>Methodology</a><ul><li><a href=#what-is-cyclegan>What is CycleGAN?</a></li><li><a href=#training-pipeline>Training pipeline</a></li></ul></li><li><a href=#score-cam-for-discriminator-interpretation>Score-CAM for discriminator interpretation</a><ul><li><a href=#why-score-cam>Why Score-CAM?</a></li><li><a href=#code-implementation>Code implementation</a></li></ul></li><li><a href=#experiments-and-results>Experiments and results</a><ul><li><a href=#aivazovsky-dataset>Aivazovsky dataset</a></li><li><a href=#ghinli-dataset>Ghinli dataset</a></li></ul></li><li><a href=#conclusion>Conclusion</a></li></ul></li></ul></nav></div></aside></main></body></html>
