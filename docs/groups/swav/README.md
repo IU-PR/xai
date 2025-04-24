@@ -18,6 +18,9 @@ This guide walks you through implementing SwAV (Swapping Assignments between Vie
 
 SwAV (Swapping Assignments between Views) is a self-supervised learning method that learns image representations without labels. The main idea:
 
+![SwAV](../../../static/swav/swav_img.png)
+
+
 1. **Creating Views**:
    - Take one image \(x\)
    - Create two different augmented views: \(v_1\) and \(v_2\)
@@ -176,44 +179,155 @@ class SwAVModel(nn.Module):
 The loss combines prototype assignment similarity between two augmentations:
 
 ```python
-def swav_loss(logits1, logits2, temp):
-    q1 = sinkhorn(logits1)
-    q2 = sinkhorn(logits2)
-    p1 = F.softmax(logits1 / temp, dim=1)
-    p2 = F.softmax(logits2 / temp, dim=1)
-    return -0.5 * ((q1 * torch.log(p2 + 1e-6)).sum(dim=1).mean() + (q2 * torch.log(p1 + 1e-6)).sum(dim=1).mean())
-```
-
-Use `train_swav()` to run:
-```python
-for epoch in range(epochs):
-    for x1, x2 in dataloader:
-        logits1, _ = model(x1)
-        logits2, _ = model(x2)
-        loss = swav_loss(logits1, logits2, temp=0.1)
+def train_swav(model, loader, optimizer):
+    """
+    One epoch of SwAV:
+    - get two views: v1, v2
+    - calculate embeddings and prototypes loggits
+    - with sinkhorn get target assignments
+    - minimize cross entropy
+    """
+    model.train()
+    total_loss = 0.0
+    
+    # create progress bar
+    pbar = tqdm(loader, desc='Training', leave=False)
+    running_loss = 0.0
+    
+    for i, (images, _) in enumerate(pbar):
+        images = [im.to(device) for im in images]
+        
+        z1, p1 = model(images[0])
+        z2, p2 = model(images[1])
+        with torch.no_grad():
+            q1 = sinkhorn(p1)
+            q2 = sinkhorn(p2)
+        # SwAV loss: cross entropy
+        loss = - (torch.sum(q2 * F.log_softmax(p1, dim=1), dim=1).mean()
+                 + torch.sum(q1 * F.log_softmax(p2, dim=1), dim=1).mean()) * 0.5
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        
+        # update statistics
+        total_loss += loss.item()
+        running_loss = total_loss / (i + 1)
+        
+        # update bar
+        pbar.set_postfix({'loss': f'{running_loss:.4f}'})
+    
+    return total_loss / len(loader)
 ```
 
+
 ---
+
+### SwAP training steps
+
+1. Get Two Augmented Views:
+
+The model processes two augmented views of the same image:
+
+z1, p1 = model(images[0]): The first image generates embeddings (z1) and prototype logits (p1).
+
+z2, p2 = model(images[1]): The second image generates embeddings (z2) and prototype logits (p2).
+
+2. Sinkhorn Normalization:
+
+The Sinkhorn-Knopp algorithm is applied to the prototype logits to obtain target assignments:
+
+q1 = sinkhorn(p1) for the first view.
+
+q2 = sinkhorn(p2) for the second view.
+
+
+3. Loss Calculation (Cross-Entropy):
+
+The SwAV loss is calculated using cross-entropy:
+```
+loss = - (torch.sum(q2 * F.log_softmax(p1, dim=1), dim=1).mean() + torch.sum(q1 * F.log_softmax(p2, dim=1), dim=1).mean()) * 0.5.
+```
+
+This loss function enforces the consistency of prototype assignments between the two augmented views.
 
 ## Step 5: Counterfactual Explanations
 ### Goal:
 "How should we change this image so that it belongs to another cluster?"
 
-```python
-def generate_counterfactual(model, image, target_cluster, lr=1e-2, steps=200):
-    x_cf = image.clone().requires_grad_(True)
-    optimizer = torch.optim.Adam([x_cf], lr=lr)
 
-    for step in range(steps):
-        logits, _ = model(x_cf)
-        loss = -logits[0, target_cluster] + 0.01 * F.mse_loss(x_cf, image)
+### Algorithm by steps:
+
+Clone the image, make it ‘trainable’ (with requires_grad=True) - we will optimise it.
+
+Run gradient descent to modify the image.
+
+At each step:
+
+We get p - probabilities of belonging to clusters.
+
+We extract logit (confidence) on the target cluster target_proto.
+
+We compute regularisations so as not to ‘break’ the image:
+
+MSE: similarity to the original.
+
+TV loss: smoothness of the image (no noise).
+
+L2 norm: total deviation.
+
+Calculating the total loss:
+the goal is to maximise the confidence of the model in the right cluster, while maintaining visual proximity.
+
+We update the image via loss.backward() and optimiser.step().
+
+We restrict the pixel values in the range [0, 1].
+
+
+```python
+def generate_counterfactual(model, image, target_proto, lr=0.05, steps=300, lambda_reg=1.0, lambda_tv=0.1):
+    """
+    Generate counterfactual: change image so that it belongs to another cluster
+    use gradient descent optimization with several regularization
+    """
+    model.eval()
+    # clone image
+    img_cf = image.clone().detach().to(device).requires_grad_(True)
+    optimizer = optim.Adam([img_cf], lr=lr)
+    
+    # calculate Total Variation loss
+    def tv_loss(img):
+        diff_h = torch.abs(img[:, :, 1:, :] - img[:, :, :-1, :]).sum()
+        diff_w = torch.abs(img[:, :, :, 1:] - img[:, :, :, :-1]).sum()
+        return (diff_h + diff_w) / (img.shape[2] * img.shape[3])
+    
+    for i in range(steps):
+        _, p = model(img_cf)
+        # loggit of prototype
+        proto_logit = p[:, target_proto].mean()
+        
+        # regularization
+        reg_loss = F.mse_loss(img_cf, image.to(device))
+        
+        tv_reg = tv_loss(img_cf)
+        
+        # L2 regularization
+        l2_reg = torch.norm(img_cf - image.to(device))
+        
+        # maximize proto_logit
+        loss = -proto_logit + lambda_reg * reg_loss + lambda_tv * tv_reg + 0.01 * l2_reg
+        
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-    return x_cf.detach()
+        
+        # constraints pizels values
+        img_cf.data.clamp_(0, 1)
+        
+        # print progress
+        if (i+1) % 50 == 0:
+            print(f"Step {i+1}/{steps}, Loss: {loss.item():.4f}, Proto logit: {proto_logit.item():.4f}")
+    
+    return img_cf.detach()
 ```
 
 ---
