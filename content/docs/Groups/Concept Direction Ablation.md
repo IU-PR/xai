@@ -114,7 +114,7 @@ r_{i}^{(l)} = \mu_{i}^{(l)} - \nu_{i}^{(l)}
 <details>
 <summary><h3>3.5 Layer Direction Choice</h3></summary>
 
-![Layer Direction Choice](/static/CDA4LLM/direction-choice.png)
+![Layer Direction Choice](/CDA4LLM/direction-choice.png)
 
 </details>
 
@@ -272,19 +272,19 @@ And high-weighted late layers, like 19 + 22 provided the least aggressive and me
 
 Initial unshifted response
 
-![alt](/static/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-44-06.jpg)
+![alt](/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-44-06.jpg)
 
 Shifted by the centroid difference vector itself
 
-![alt](/static/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-44-07.jpg)
+![alt](/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-44-07.jpg)
 
 Shifted by a direction vector with a scale of 5.0
 
-![alt](/static/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-44-09.jpg)
+![alt](/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-44-09.jpg)
 
 Shifted by a direction vector with a scale of 7.0
 
-![alt](/static/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-44-11.jpg)
+![alt](/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-44-11.jpg)
 
 ### Cross-lingual Testing
 
