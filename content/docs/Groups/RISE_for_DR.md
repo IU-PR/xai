@@ -134,10 +134,10 @@ Process:
 
 | Original | RISE |
 |----------|------|
-| <img src="RISE_images/air_hockey.jpg" width="200"/> | <img src="RISE_images/air_hockey_rise.png" width="200"/> |
-| <img src="RISE_images/ampute_football.jpg" width="200"/> | <img src="RISE_images/ampute_football_rise.png" width="200"/> |
-| <img src="RISE_images/archery.jpg" width="200"/> | <img src="RISE_images/archery_rise.png" width="200"/> |
-| <img src="RISE_images/arm_wrestling.jpg" width="200"/> | <img src="RISE_images/arm_wrestling_rise.png" width="200"/> |
-| <img src="RISE_images/axe_throwing.jpg" width="200"/> | <img src="RISE_images/axe_throwing_rise.png" width="200"/> |
+| <img src="/RISE_images/air_hockey.jpg" width="200"/> | <img src="/RISE_images/air_hockey_rise.png" width="200"/> |
+| <img src="/RISE_images/ampute_football.jpg" width="200"/> | <img src="/RISE_images/ampute_football_rise.png" width="200"/> |
+| <img src="/RISE_images/archery.jpg" width="200"/> | <img src="/RISE_images/archery_rise.png" width="200"/> |
+| <img src="/RISE_images/arm_wrestling.jpg" width="200"/> | <img src="/RISE_images/arm_wrestling_rise.png" width="200"/> |
+| <img src="/RISE_images/axe_throwing.jpg" width="200"/> | <img src="/RISE_images/axe_throwing_rise.png" width="200"/> |
 
 
