@@ -59,7 +59,7 @@ Attention weights indicate how much each token attends to every other token in a
 To quantify embedding importance beyond gradients:
 
 - For ablation, we replaced a single token’s embedding with a zero vector, ran a forward pass, and recorded the delta in the target logit.
-- For sensitivity, we sampled Gaussian noise with σ=0.1 added to one embedding at a time, repeated for 30 random draws, and computed the standard deviation of the resulting logits.
+- For sensitivity, we sampled Gaussian noise with σ=0.1 added to one embedding at a time, repeated for 10 random draws, and computed the standard deviation of the resulting logits.
 - Ablation captures direct contribution, while sensitivity captures how robust the prediction is to small changes in each embedding.
 - Both measures complement IG by revealing inhibitory versus supportive roles and points of instability.
 
