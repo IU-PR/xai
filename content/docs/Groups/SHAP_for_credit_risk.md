@@ -9,6 +9,10 @@ title: "Interpretable SHAP for Credit Risk Scoring"
 
 # Interpretable SHAP for Credit Risk Scoring
 
+**Author: Diana Vostrova**
+
+*To see the implementation, visit [kaggle notebook](https://www.kaggle.com/code/dianavostrova/xai-project-diana-vostrova).*
+
 ## Table of Contents
 
 - [1. Introduction](#1-introduction)
@@ -23,9 +27,8 @@ title: "Interpretable SHAP for Credit Risk Scoring"
   - [5.1 Evaluation Metrics](#51-evaluation-metrics)
   - [5.2 Explanation Techniques and Visualizations](#52-explanation-techniques-and-visualizations)
   - [5.3 Interpretations and Findings](#53-interpretations-and-findings)
-- [6. My Implementation](#6-my-implementation)
-- [7. Conclusion, Future Work, Limitations and Ethical Considerations](#7-conclusion-future-work-limitations-and-ethical-considerations)
-- [8. References](#8-references)
+- [6. Conclusion, Future Work, Limitations and Ethical Considerations](#7-conclusion-future-work-limitations-and-ethical-considerations)
+- [7. References](#8-references)
 
 ---
 
@@ -314,16 +317,7 @@ We generated 11 distinct SHAP visualizations including:
 
 ---
 
-## 6. My Implementation
-
-All code, visualizations, and notebooks are available in the GitHub repository (to be added):
-
-> 📎 **Link to GitHub repo:** **coming soon**\
-> Contains code, SHAP implementation logic, and interactive visualizations.
-
----
-
-## 7. Conclusion
+## 6. Conclusion
 
 This project demonstrates how manual implementation of SHAP can:
 
@@ -351,7 +345,7 @@ This project demonstrates how manual implementation of SHAP can:
 
 ---
 
-## 8. References
+## 7. References
 
 - Lundberg, S. M., & Lee, S. I. (2017). A Unified Approach to Interpreting Model Predictions. *NeurIPS*. [https://arxiv.org/abs/1705.07874](https://arxiv.org/abs/1705.07874)
 - Lundberg, S. M., Erion, G. G., & Lee, S. I. (2020). From Local Explanations to Global Understanding with Explainable AI for Trees. *Nature Machine Intelligence*. [https://www.nature.com/articles/s42256-019-0138-9](https://www.nature.com/articles/s42256-019-0138-9)
