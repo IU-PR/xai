@@ -22,7 +22,9 @@ The vanilla gradient method is the simplest approach to generating saliency maps
 
 Mathematically, for an input x and a model f, the vanilla gradient saliency map is:
 
+{{<katex display>}}
 $$S(x) = \left|\frac{\partial f(x)}{\partial x}\right|$$
+{{</katex>}}
 
 **Limitations**: While simple to compute, vanilla gradients often produce noisy and scattered saliency maps that can be difficult to interpret. They tend to highlight edges rather than the complete objects of interest.
 
@@ -30,16 +32,22 @@ $$S(x) = \left|\frac{\partial f(x)}{\partial x}\right|$$
 
 Integrated Gradients (IG) addresses some of the limitations of vanilla gradients by considering the path integral from a baseline input to the actual input. It computes:
 
+{{<katex display>}}
 $$IG(x) = (x - x_0) \times \int_{\alpha=0}^{1} \frac{\partial f(x_0 + \alpha(x - x_0))}{\partial x} d\alpha$$
+{{</katex>}}
 
+{{<katex>}}
 Where:
 - $x$ is the input
 - $x_0$ is a baseline input (often zero or random noise)
 - $\alpha$ is a scaling factor along the path from baseline to input
+{{</katex>}}
 
 In practice, the integral is approximated using a Riemann sum:
 
+{{<katex display>}}
 $$IG(x) \approx (x - x_0) \times \frac{1}{m} \times \sum_{i=1}^{m} \frac{\partial f(x_0 + \frac{i}{m}(x - x_0))}{\partial x}$$
+{{</katex>}}
 
 **Advantages**:
 - Satisfies the completeness axiom - the attributions add up to the difference between the output at the input and baseline
@@ -66,12 +74,16 @@ SmoothGrad addresses this by:
 
 Mathematically:
 
+{{<katex display>}}
 $$SmoothGrad(x) = \frac{1}{n} \sum_{i=1}^{n} S(x + \mathcal{N}(0, \sigma^2))$$
+{{</katex>}}
 
+{{<katex>}}
 Where:
 - $S$ is any saliency map generation function (like vanilla gradients or integrated gradients)
 - $n$ is the number of samples
 - $\mathcal{N}(0, \sigma^2)$ is Gaussian noise with standard deviation $\sigma$
+{{</katex>}}
 
 ### Connection to Monte Carlo Methods
 
