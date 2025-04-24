@@ -174,3 +174,91 @@ M_{j, k}(\alpha_i) =
 0, & \text{otherwise}
 \end{cases}
 {{</katex>}}
+
+
+## Explainability
+We’ve seen how CoTA compresses the sequence by dropping redundant tokens.
+But how can we be sure the remaining tokens still carry the essential information needed for downstream tasks?
+Understanding what is preserved and why certain tokens are kept is crucial.
+
+### I. Sentiment Classification
+
+Let's look at a sentiment classification task. Given a review text, 
+we want to classify it as either positive (ratings 4-5) or negative (ratings 1-3).
+
+Instead of training a complex classifier like RNN or Transformer, on top of our compressed sequence
+(which might obscure the quality of the sequence itself),
+we can use a simple probing approach.
+We apply a small, independent classifier head to each token's embedding in the compressed sequence.
+
+Think of each token in the compressed sequence casting a "vote" on the overall sentiment of the review.
+We use a simple Multi-Layer Perceptron (MLP) head, often called a probing head (fcls),
+applied to each token embedding Ei:
+
+{{<katex display>}}
+ logit_{i} = f_{cls}(E_i)
+{{</katex>}}
+
+To get the final sentiment prediction for the entire review, we simply sum these individual token logits.
+Finally, a sigmoid function σ converts this total logit into a probability score between 0 and 1:
+
+{{<katex display>}}
+ P(positive) = \sigma \Big(   \sum_{i}f_{cls}(E_i)  \Big)
+{{</katex>}}
+
+
+
+[//]: # (What if, instead, each embedding contributed to classifying the sentiment of the entire review?)
+
+[//]: # (We could make this as a form of "voting" among the embeddings: “Is it positive or negative review?”.)
+
+[//]: # (Therefore, we can utilize a MLP head, typical for probing tasks.)
+
+[//]: # (Each embedding will pass through this head, producing a single logit.)
+
+[//]: # (Summing up all logits produces a collective representation of a whole sequence.)
+
+[//]: # (After, the standard sigmoid function applied to obtain the final prediction.)
+
+[//]: # (This can be expressed as:)
+
+
+[//]: # (<div style="width: 40%; margin: auto;">)
+
+[//]: # (    <img src="/Megatoken/voting.png" alt="Voting MLP Head"/>)
+
+[//]: # (</div>)
+
+<div style="width: 100%; margin: auto;">
+    <img src="/Megatoken/classifier.png" alt="Voting MLP Head"/>
+</div>
+
+This setup allows us to assess if the information distributed across the compressed sequence
+is sufficient for sentiment analysis, without relying on a complex model to potentially synthesize missing information.
+
+
+When we compare the performance of this simple probing classifier on our compressed sequences
+against a standard model like BERT using its full sequence output (e.g., the [CLS] token),
+we find the results are quite similar.
+This suggests that even after significantly reducing the number of tokens,
+the CoTA approach retains enough signal in the remaining embeddings
+to accurately capture the overall sentiment of the text,
+performing comparably to models using the full original sequence.
+
+<div style="width: 100%; margin: auto;">
+    <img src="/Megatoken/cls_comp.png" alt="Voting MLP Head"/>
+</div>
+
+[//]: # (As observed, the metrics differ only slightly.)
+
+[//]: # (This supports the conclusion that our model, employing a compressed sequence,)
+
+[//]: # (performs reasonably well at encoding the overall sentiment of the text,)
+
+[//]: # (demonstrating performance comparable to BERT.)
+
+
+
+
+
+### II. SHAP
