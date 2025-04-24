@@ -265,9 +265,56 @@ Also, we calculated accuracy, Self-BLEU and ROUGE metrics over the test set:
     </tr>
 </table>
 
-## Interpretation
+## Explainability
 
-### Probing
+We've seen how Megatoken compresses the sequence by dropping redundant tokens.
+But how can we be sure the remaining tokens still carry the essential information needed for downstream tasks?
+Understanding what is preserved and why certain tokens are kept is crucial.
+
+### I. Sentiment Classification
+
+Let's look at a sentiment classification task. Given a review text,
+we want to classify it as either positive (ratings 4-5) or negative (ratings 1-3).
+
+Instead of training a complex classifier like RNN or Transformer, on top of our compressed sequence
+(which might obscure the quality of the sequence itself),
+we can use a simple probing approach.
+We apply a small, independent classifier head to each token's embedding in the compressed sequence.
+
+Think of each token in the compressed sequence casting a "vote" on the overall sentiment of the review.
+We use a simple Multi-Layer Perceptron (MLP) head, often called a probing head ({{<katex>}}f_{\text{cls}}{{</katex>}}),
+applied to each token embedding {{<katex>}}E_i{{</katex>}}:
+
+{{<katex display>}}
+\text{logit}_{i} = f_{\text{cls}}(E_i)
+{{</katex>}}
+
+To get the final sentiment prediction for the entire review, we simply sum these individual token logits.
+Finally, a sigmoid function {{<katex>}}\sigma{{</katex>}} converts this total logit into a probability score between 0
+and 1:
+
+{{<katex display>}}
+P(positive) = \sigma \left( \sum_{i}f_{cls}(E_i) \right)
+{{</katex>}}
+
+<div style="width: 90%; margin: auto;">
+    <img src="/Megatoken/classifier.png" alt="Voting MLP Head"/>
+</div>
+
+This setup allows us to assess if the information distributed across the compressed sequence
+is enough for sentiment analysis, without relying on a complex model to potentially synthesize missing information.
+
+When we compare the performance of this simple probing classifier on our compressed sequences
+against a standard model like BERT using its full sequence output (e.g., the [CLS] token),
+we find the results are quite similar.
+This suggests that even after significantly reducing the number of tokens,
+the Megatoken approach retains enough signals in the remaining embeddings
+to accurately capture the overall sentiment of the text,
+performing comparably to models using the full original sequence.
+
+<div style="width: 90%; margin: auto;">
+    <img src="/Megatoken/cls_comp.png" alt="Voting MLP Head"/>
+</div>
 
 ### SHAP
 
@@ -316,7 +363,7 @@ Where:
 Now we just repeat this process for every token in the sequence.
 The result is a heatmap that looks something like this:
 
-<div style="width: 50%; margin: auto;">
+<div style="width: 100%; margin: auto;">
     <img src="/Megatoken/shap_heatmap.png" alt="SHAP Heatmap"/>
 </div>
 
