@@ -81,7 +81,15 @@ For example, taking concept of `hamrfulness` we should take 500 samples of both 
 
 ### 2. Probing Step
 
-Accumulate `harmful` and `harmless` activations on specified blocks of LLM.
+Accumulate `harmful` and `harmless` activations on specified blocks of LLM. Pos slice here -1 representing activation of all sequence on the last token.
+
+```python
+logits, cache = model.run_with_cache(
+    tokens,
+    pos_slice=-1,
+    names_filter=lambda name: "resid_pre" in name,
+)
+```
 
 ### 3. Extracting Concept Direction
 
@@ -96,11 +104,77 @@ $$ r_{i}^{(l)} = \mu_{i}^{(l)} - \nu_{i}^{(l)} $$
 
 ### 4. Ablate Using Concept Direction
 
-$${a}_{l}' \leftarrow a_l - (a_l \cdot \widehat{r}) \widehat{r}$$
+Intervent activations via subtracting from **activation** `activation projection onto concept direction`.
+
+$$ proj_{r}a = \frac{a \cdot r}{||r||} \cdot \frac{r}{||r||} = (a_l \cdot \widehat{r}) \cdot \widehat{r} $$
+
+$${a}_{l}' \leftarrow a_{l} - proj_{r} a$$
 
 ## Results
 
 ### Qwen-1_8B-chat
+
+Success as in notebook when apply best concept direction (by rules) to all resid_pre, resid_mid, resid_post
+
+![First Success](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-35-55.jpg)
+
+```python
+fwd_hooks = [
+    (utils.get_act_name(act_name, l), harmfulness_hook_fn)
+    for l in intervention_layers
+    for act_name in ["resid_pre", "resid_mid", "resid_post"]
+]
+```
+
+When applying ablation to the only one layer the model continues to refuse:
+
+![One Layer Ablation](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-36-42.jpg)
+
+```python
+fwd_hooks = [
+    (utils.get_act_name(act_name, l), harmfulness_hook_fn)
+    for l in [14]
+    for act_name in ["resid_pre"]
+]
+```
+
+Next finding that we can ablte only one group among ["resid_pre", "resid_mid", "resid_post"]. In the example above ablation was applied only to "resid_pre".
+
+![Only One Group Ablation](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-36-53.jpg)
+
+```python
+fwd_hooks = [
+    (utils.get_act_name(act_name, l), harmfulness_hook_fn)
+    for l in intervention_layers
+    for act_name in ["resid_pre"]
+]
+```
+
+Not only one layer may support successful refusal direction. The example below shows taking direction not from "blocks.14.hook_resid_pre" but from "blocks.24.hook_resid_pre" (last).
+
+![Anaother Layer of taking refusal direction](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-37-04.jpg)
+
+The following experiments demonstrate how ablation breaks model in terms of making any sence and outputs neither the refusal, neither seeked jailbreak.
+
+![chin chan chon chi](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-37-20.jpg)
+
+![chin chan chon chi 2](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-37-32.jpg)
+
+![!](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-37-41.jpg)
+
+Taking "hook_resid_post" also works fine
+
+![Hook Resid Post](/static/CDA4LLM/Qwen-1_8B-chat/blocks.10.hook_resid_post.png)
+
+![Hook Resid Post](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_13-04-33.jpg)
+
+We also tried to map task onto interlanguage space when concept is not associated with specific language but perceived by llm on concept level.
+
+![Russian Prompt](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_13-30-08.jpg)
+
+![Russian Prompt Continuation](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_13-30-11.jpg)
+
+#### Padding Problem
 
 On collecting probes section we noticed that Qwen model's activations tended to work for our purpose only with left padding enabled. Our explanation is that by taking activation on $ pos = -1 $ when left padding is enabled we get last actiavation on last token representing sequence (bold in example). And suddenly appears that it differs when sequence ends with padding token (probably with special / meaningless).
 
@@ -115,8 +189,6 @@ On collecting probes section we noticed that Qwen model's activations tended to 
 | Left Padded                                                                      | Right Padded                                                                                        |
 | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | ![Left Padded Qwen](/static/CDA4LLM/Qwen-1_8B-chat/blocks.14.hook_resid_pre.png) | ![Right Padded Qwen](</static/CDA4LLM/Qwen-1_8B-chat/blocks.14.hook_resid_pre%20(right_paded).png>) |
-
-...
 
 ### Yandex GPT
 
