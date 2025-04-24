@@ -104,12 +104,21 @@ g(\alpha_i), & \text{if } j = i \oplus k = i \\
 At first glance, it might seem natural to define {{<katex>}}g(\alpha_i){{</katex>}} with a hard threshold to achieve the
 same effect as removing token from tensor:
 
-{{<katex display>}}
-g(\alpha_i) = \begin{cases}
--\inf, & \alpha_i < 0.5 \\
-0, & \text{otherwise}
-\end{cases}
-{{</katex>}}
+<table>
+<tr>
+    <td style="width: 50%; border: none">
+        {{<katex display>}}
+        g(\alpha_i) = \begin{cases}
+        -\inf, & \alpha_i < 0.5 \\
+        0, & \text{otherwise}
+        \end{cases}
+        {{</katex>}}
+    </td>
+    <td style="width: 50%; border: none;">
+        <img src="/Megatoken/comp_mask.png" alt="Compressional Mask" style="width: 75%"/>
+    </td>
+</tr>
+</table>
 
 But this kind of step function isn't differentiable — it has zero gradients everywhere, except an undefined gradient at
 jump point 0.5.
@@ -124,3 +133,33 @@ g(\alpha_i) = \ln(\alpha_i)
 This way, we don't remove tokens completely — we just gradually reduce their influence depending on how low
 their {{<katex>}}\alpha_i{{</katex>}} score is.
 This approach preserves differentiability and allows the model to learn which tokens matter most.
+
+## Training
+### Architecture
+To train the model to compress language into a smaller set of important tokens, we use an autoencoder setup — a common
+architecture where an encoder learns to summarize data, and a decoder learns to reconstruct it.
+
+But there's a twist.
+
+In NLP, transformer decoders need context — not just the summary from the encoder, but also the tokens they've already
+generated.
+This context is crucial because to generate the text, the decoder predicts just one next token at a time.
+Without seeing what it has generated so far, it would have no idea where it is in the sentence.
+
+<div style="width: 50%; margin: auto;">
+    <img src="/Megatoken/strong_decoder.png" alt="Strong Decoder"/>
+</div>
+
+So during training, we also feed part of the original text into the decoder as context.
+But if we feed in too much, the decoder might ignore the encoder's output entirely and just rely on the full original
+text.
+
+<div style="width: 50%; margin: auto;">
+    <img src="/Megatoken/normal_decoder.png" alt="Strong Decoder"/>
+</div>
+
+To prevent this, we limit the decoder's context to just the last {{<katex>}}N{{</katex>}} tokens — enough to help with
+positioning, but not enough to reconstruct the input on its own.
+This forces the model to actually use the encoder's compressed memory.
+
+### Loss Function
