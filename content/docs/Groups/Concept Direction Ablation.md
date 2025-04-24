@@ -12,7 +12,11 @@ _[Repository Link](https://github.com/PodYapolskiy/cav4apd)_
 
 ## Introduction
 
-lorem ipsum
+Large Language Models (LLMs) have become increasingly more strict at following safety guidelines, often refusing to generate harmful, unethical, or impolite content. However, recent research suggests that these refusal mechanisms may rely on specific internal representations—directions in activation space that determine whether a response should be blocked.
+
+In this project, we investigate Concept Direction Ablation (CDA), a technique inspired by recent findings that refusal behavior in LLMs can be mediated by a single direction in their activation space. By identifying and manipulating these concept-aligned directions—such as those corresponding to "harmfulness" or "politeness"—we explore whether it is possible to bypass safety filters while maintaining the model’s core functionality.
+
+Our work focuses on two key models: Qwen-1.8B-chat and YandexGPT-5-Lite-8B-instruct—applying CDA across different layers and activation types (e.g., resid_pre, resid_post).
 
 ## Setup
 
@@ -253,7 +257,9 @@ It seem quite interesting, that such safety mechanics is much harder to bypass c
 
 ## Conclusion
 
-lorem ipsum
+This project resulted in a working demo showcasing the method described in the considered paper with some modifications to align with particular models.
+
+Also, analysis of a YandexGPT model was conducted in order to evaluate potential behind cross-language concept shifting and test if CDA can be applied to other concepts(politeness in our implementation). The results are quite encouraging and show great potential for further work.
 
 ## Reference
 
