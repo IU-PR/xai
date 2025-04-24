@@ -38,7 +38,6 @@ IG provides a principled way to assign credit to each input token for the model�
 - For each step, we compute the gradient of the target logit with respect to the interpolated embedding.
 - Attributions are obtained by summing the gradients and scaling by the difference from baseline.
 - We sum attributions across embedding dimensions to get a single score per token.
-- Captum’s `IntegratedGradients` implementation was used for reliable integration and convergence checks.
 
 ### 2. Attention Visualization
 
@@ -50,7 +49,7 @@ Attention weights indicate how much each token attends to every other token in a
 - Selected layer 0, head 0 as a representative case to illustrate global versus local focus.
 - Visualized weights as a heatmap where rows correspond to queries and columns to keys.
 - Normalized attention scores to sum to one per query token for clearer interpretation.
-- Implementation: Used Matplotlib and Seaborn for heatmap plotting, with tokens labeled along the axes.
+- Implementation: Used Matplotlib for heatmap plotting, with tokens labeled along the axes.
 
 ### 3. Embedding Influence Analysis
 
