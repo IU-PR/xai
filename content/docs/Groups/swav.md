@@ -18,7 +18,7 @@ This guide walks you through implementing SwAV (Swapping Assignments between Vie
 
 SwAV (Swapping Assignments between Views) is a self-supervised learning method that learns image representations without labels. The main idea:
 
-![SwAV](../../../static/swav/swav_img.png)
+![SwAV](/swav/swav_img.png)
 
 
 1. **Creating Views**:
@@ -354,12 +354,12 @@ def visualize_cluster_members(embeddings, cluster_labels, query_idx, k=5):
 
 Clasters example
 
-![Clasters example](../../../static/swav/cluster_members.png)
+![Clasters example](/swav/cluster_members.png)
 
 
 Conterfactual example
 
-![conterfactual example](../../../static/swav/counterfactual_dogs.png)
+![conterfactual example](/swav/counterfactual_dogs.png)
 ---
 
 ## Future Tips
