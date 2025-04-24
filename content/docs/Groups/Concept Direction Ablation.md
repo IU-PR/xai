@@ -234,6 +234,22 @@ As it can be seen, layer 22 turned out to be the most influential. However, shif
 
 Several layer combinations(along with corresponding weighting strategies) were tested. They were picked based on layer importance scores and common sense.
 
+---
+
+As it can be seen, when the model is changing its behavior it starts to lose common sense at some point because of shift influence. This can be further fixed by collecting a bigger sample dataset and controlling model hyperparameters finely
+
+![Loosing Common Sense](/static/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-17-04.jpg)
+
+As it can be seen, 22nd + 19/26th layer combination resulted in the most stable results, still making sense at the beginning of a response
+
+![alt](/static/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-18-33.jpg)
+
+And high-weighted late layers, like 19 + 22 provided the least aggressive and meaningful responses
+
+![alt](/static/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-19-46.jpg)
+
+![alt](/static/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-19-48.jpg)
+
 ### Cross-lingual Testing
 
 - Replicated experiments with Russian language prompts and examples
