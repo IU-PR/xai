@@ -11,7 +11,11 @@
 8. [RISE Examples](#examples)
 
 ---
-
+## Method overview
+To generate a saliency map for model's prediction, RISE queries black-box model on multiple randomly masked versions of input.
+After all the queries are done we average all the masks with respect to their scores to produce the final saliency map. The idea behind this is that whenever a mask preserves important parts of the image it gets higher score, and consequently has a higher weight in the sum.
+![](https://eclique.github.io/rep-imgs/RISE/rise-overview.png)
+---
 ## [Link to our repository](https://github.com/AlexeyShulmin/xai/tree/main)
 
 <a name="repo"></a>
