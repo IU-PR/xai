@@ -1,7 +1,7 @@
 ---
 weight: 1
 bookFlatSection: true
-title: "Concept Direction Albation"
+title: "CDA4LLM"
 ---
 
 # Concept Direction Ablation for Large Language Models (CDA4LLM)
