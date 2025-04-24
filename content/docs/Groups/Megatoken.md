@@ -166,7 +166,7 @@ This forces the model to actually use the encoder's compressed memory.
 
 ### Loss Function
 
-The loss function consists of two parts:
+Our loss balances two goals: accurate reconstruction and effective compression.
 
 {{<katex display>}}
 \mathcal{L} = \mathcal{L}_{\text{CE}} + \lambda \mathcal{L}_{\text{comp}}
@@ -174,13 +174,15 @@ The loss function consists of two parts:
 
 Where:
 
-1. {{<katex>}}\mathcal{L}_{\text{CE}}{{</katex>}} is a Cross-Entropy loss to measure how well the model reconstructs
-   the sequence,
-2. {{<katex>}}\mathcal{L}_{\text{comp}}{{</katex>}} is a compression loss to force model to keep less vectors,
-3. {{<katex>}}\lambda{{</katex>}} is a weight factor for compression, used to balance accuracy and compression.
+1. {{<katex>}}\mathcal{L}_{\text{CE}}{{</katex>}} is the standard cross-entropy loss — it encourages the decoder to
+   reconstruct the original text correctly,
+2. {{<katex>}}\mathcal{L}_{\text{comp}}{{</katex>}} is a compression loss — it encourages the model to drop unimportant
+   tokens,
+3. {{<katex>}}\lambda{{</katex>}} controls how much we care about compression vs. accuracy.
 
-It might be not obvious how compression loss is calculated in continuous case.
-To do this, we keep track of mask values used to remove the token at each step:
+Each token gets an importance score {{<katex>}}\alpha_i \in [0, 1]{{</katex>}}.
+Lower scores mean lower importance.
+At each step {{<katex>}}s{{</katex>}}, we track how much suppression a token accumulates over time:
 
 {{<katex display>}}
 \begin{aligned}
@@ -189,11 +191,7 @@ G_i(s) &= \ln(\alpha_i) + G_{i}(s - 1)
 \end{aligned}
 {{</katex>}}
 
-Using the mask values, we can determine whether token might be considered as eliminated or not.
-The token can be considered eliminated if the value of the mask is greater than the dot-product inside the attention
-matrix.
-So we use the following formula to determine whether the token is eliminated at the step {{<katex>}}s{{</katex>}} or
-not:
+Then we convert this accumulated suppression into a probability that the token still participates in the attention:
 
 {{<katex display>}}
 \begin{aligned}
@@ -204,23 +202,30 @@ d &= \frac{KV_{\text{dim}}}{H}
 
 Where:
 
-1. {{<katex>}}KV_{\text{dim}}{{</katex>}} is the size of key-value vectors,
-2. {{<katex>}}H{{</katex>}} is the number of attention heads
+1. {{<katex>}}KV_{\text{dim}}{{</katex>}} is the dimensionality of key vector,
+2. {{<katex>}}H{{</katex>}} is the number of attention heads.
 
-Division by {{<katex>}}\sqrt{d}{{</katex>}} prevents from assuming that the token is eliminated when the mask value is
-big enough to produce small exponent values, but too small to mask the token.
+The division by {{<katex>}}\sqrt d{{</katex>}} is critical: without it, modest negative values (e.g. -5) could push the
+exponent close to zero — suggesting a token is eliminated — even though its attention score may still be large enough to
+survive the masking.
+By scaling down the suppression term, we avoid falsely assuming a token has been removed when it hasn't.
 
-Then the length of the output at the step {{<katex>}}s{{</katex>}} might be calculated as:
+Now we can estimate the effective sequence length:
+
 {{<katex display>}}
 L(s) = \sum_{i=0}^{N}{P_i(s)}
 {{</katex>}}
 
-Using the length at the current and previous steps we can calculate the compression ratio:
+And compute how much it shrinks over time:
+
 {{<katex display>}}
 R(s) = \frac{L(s)}{L(s - 1)}
 {{</katex>}}
 
-Finally, we define the compression loss function as:
+Finally, we define the compression loss:
+
 {{<katex display>}}
 \mathcal{L}_{\text{comp}} = \frac{1}{S}\sum_{s=0}^{S}{R(s)^2}
 {{</katex>}}
+
+This gives us a smooth, differentiable way to encourage shorter, more efficient representations.
