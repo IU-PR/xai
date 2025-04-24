@@ -192,8 +192,8 @@ we can use a simple probing approach.
 We apply a small, independent classifier head to each token's embedding in the compressed sequence.
 
 Think of each token in the compressed sequence casting a "vote" on the overall sentiment of the review.
-We use a simple Multi-Layer Perceptron (MLP) head, often called a probing head (fcls),
-applied to each token embedding Ei:
+We use a simple Multi-Layer Perceptron (MLP) head, often called a probing head ({{<katex>}}f_{cls}{{</katex>}}),
+applied to each token embedding {{<katex>}}E_i{{</katex>}}:
 
 {{<katex display>}}
  logit_{i} = f_{cls}(E_i)
@@ -223,13 +223,7 @@ Finally, a sigmoid function σ converts this total logit into a probability scor
 [//]: # (This can be expressed as:)
 
 
-[//]: # (<div style="width: 40%; margin: auto;">)
-
-[//]: # (    <img src="/Megatoken/voting.png" alt="Voting MLP Head"/>)
-
-[//]: # (</div>)
-
-<div style="width: 100%; margin: auto;">
+<div style="width: 80%; margin: auto;">
     <img src="/Megatoken/classifier.png" alt="Voting MLP Head"/>
 </div>
 
@@ -245,17 +239,10 @@ the CoTA approach retains enough signal in the remaining embeddings
 to accurately capture the overall sentiment of the text,
 performing comparably to models using the full original sequence.
 
-<div style="width: 100%; margin: auto;">
+<div style="width: 80%; margin: auto;">
     <img src="/Megatoken/cls_comp.png" alt="Voting MLP Head"/>
 </div>
 
-[//]: # (As observed, the metrics differ only slightly.)
-
-[//]: # (This supports the conclusion that our model, employing a compressed sequence,)
-
-[//]: # (performs reasonably well at encoding the overall sentiment of the text,)
-
-[//]: # (demonstrating performance comparable to BERT.)
 
 
 
