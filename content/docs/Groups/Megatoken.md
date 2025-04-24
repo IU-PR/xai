@@ -264,3 +264,64 @@ Also, we calculated accuracy, Self-BLEU and ROUGE metrics over the test set:
         <td>0.94</td>    
     </tr>
 </table>
+
+## Interpretation
+
+### Probing
+
+### SHAP
+
+Sentiment classification proves the model isn't just guessing — it's actually picking up useful features.
+Meanwhile, SHAP reveals the hidden magic — it shows which tokens are pulling the strings behind the scenes.
+
+Shapley values come from game theory and measure how much each part contributes to the outcome.
+It's like pulling your best striker off the field — if your team falls apart, it means they were doing something
+important.
+Keep swapping out players, and you'll start to see who's really carrying the team.
+But remember how players interact with each other.
+A player's performance can depend on the whole team: remove a defender or two, and you might still have a shot, but if
+you send everyone to attack and leave the goalkeeper alone — well, good luck!
+The same concept applies across different scenarios in SHAP.
+Simple recipe: perturb features, compare outcomes, and derive importance.
+
+When reconstructing a sentence, SHAP can help us understand how each encoder embedding influences the tokens generated
+by the decoder.
+But remember — a sentence isn't just one thing.
+It's a whole sequence of tokens, like a series of matches in a tournament.
+So we break it down, one token at a time.
+For each generated word, we remove different features from the encoder and watch how the prediction shifts.
+If the model was confidently predicting `cat` with a probability of 0.9, and that drops to 0.2 after removing a
+feature — that feature clearly mattered.
+SHAP would assign it a high value, saying: this one pulled a lot of weight.
+
+(Nerd warning) Let's peek under the hood for a sec.
+For each feature, we construct two sets of coalitions: one that includes the feature, and one that's identical except it
+leaves the feature out.
+We then compute the difference in model output between these two sets, element by element.
+Each difference is weighted by the probability of selecting that specific coalition.
+Finally, we sum the weighted differences and normalize the result.
+That gives us the SHAP value — a precise measure of the feature's contribution.
+Here is the formula:
+
+{{<katex display>}}
+\phi_i = \frac{\sum_{j = 1}^{M}{w_{|S_j|} \left( f(S_j \cup \{ i \}) - f(S_j) \right)}}{\sum_{j=1}^{M}{w_{|S_j|}}}
+{{</katex>}}
+
+Where:
+
+1. {{<katex>}}M{{</katex>}} is the number of samples,
+2. {{<katex>}}f(S_j){{</katex>}} is the model's prediction for correct with {{<katex>}}S_j{{</katex>}} features,
+3. {{<katex>}}w_{|S_j|}{{</katex>}} is the weight for the coalition of size {{<katex>}}|S|{{</katex>}}.
+
+Now we just repeat this process for every token in the sequence.
+The result is a heatmap that looks something like this:
+
+<div style="width: 50%; margin: auto;">
+    <img src="/Megatoken/shap_heatmap.png" alt="SHAP Heatmap"/>
+</div>
+
+This map shows how much each vector (listed on the left) influences each generated token (lined up at the bottom).
+The brighter the SHAP value, the more that feature matters — meaning, if you removed it, the model's prediction would
+change accordingly.
+Each feature tends to focus on its own little "chunk" of the sentence, pulling in info from nearby words.
+The EOS token captures a summary of the whole sequence — kind of like the model's way of wrapping things up.
