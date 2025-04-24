@@ -231,8 +231,9 @@ Here's the explanation of another model's prediction on the same phrase. This ti
 - **Mixed signals**: In phrase "A charming disaster from start to finish” IH highlights interaction between "charming" & "disaster".
 ![image](/integrated_hessians/charming_disaster.png)
 
- Also, Integrated Gradients show that "charming" tried to sway prediction to positive side. 
+Also, Integrated Gradients show that "charming" tried to sway prediction to positive side. 
 ![image](/integrated_hessians/charming_disaster_gradients.png)
+
 ---
 
 ## 7. Discussion
