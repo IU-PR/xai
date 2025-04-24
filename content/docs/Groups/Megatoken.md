@@ -287,22 +287,19 @@ set), we go lightweight. We attach a small classifier — a probing head — to 
 
 Here's how it works:
 
-1. Each token embedding {{<katex>}}E_i{{</katex>}} passes through a shared MLP:
-   {{<katex display>}} \text{logit}_i = f(E_i) {{</katex>}}
-2. We sum all the logits: {{<katex display>}} \text{logits} = \sum_{i=0}^{N} \text{logit}_i {{</katex>}}
+1. Each token embedding {{<katex>}}E_i{{</katex>}} is passed through a shared MLP:
+   {{<katex display>}} \text{vote}_i = \text{MLP}(E_i) {{</katex>}}
+2. We sum all the votes: {{<katex display>}} \text{votes} = \sum_{i=0}^{N} \text{vote}_i {{</katex>}}
 3. And squash the result with a sigmoid:
-   {{<katex display>}} P(\text{positive}) = \sigma(\text{logits}) {{</katex>}}
+   {{<katex display>}} P(\text{positive}) = \sigma(\text{votes}) {{</katex>}}
 
 <div style="width: 90%; margin: auto;">
     <img src="/Megatoken/classifier.png" alt="Voting MLP Head"/>
 </div>
 
-This setup tells us whether the compressed tokens alone are enough to capture sentiment — no fancy architecture needed.
+This setup lets us test whether the compressed tokens still carry enough information to capture sentiment — and they do.
+The performance is close to what you'd get from the standard attention-based models like BERT.
 
-The answer?
-Yes.
-Performance is on par with full-sequence models like BERT.
-Even though we've dropped a bunch of tokens, the ones we keep are doing the heavy lifting.
 <div style="width: 90%; margin: auto;">
     <img src="/Megatoken/cls_comp.png" alt="Voting MLP Head"/>
 </div>
