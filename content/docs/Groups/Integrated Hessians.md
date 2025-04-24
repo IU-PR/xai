@@ -6,7 +6,7 @@ We introduce **Integrated Hessians**, the first scalable second-order attributio
 
 ## 1. Introduction
 
-Deep NLP models such as RoBERTa achieve state-of-the-art performance but remain opaque “black boxes,” posing risks of bias, unreliability, and reduced user trust when deployed in real-world settings. Explaining model decisions is essential for **transparency**, **fairness**, and **debugging**. Existing gradient-based XAI methods (e.g., Integrated Gradients) provide **first-order** attributions of individual features but ignore **pairwise interactions** crucial for language understanding (e.g., “not good”) . We propose **Integrated Hessians**, extending Integrated Gradients to capture second-order effects, thereby revealing how token pairs jointly influence model outputs.
+Deep NLP models such as RoBERTa achieve state-of-the-art performance but remain opaque “black boxes,” posing risks of bias, unreliability, and reduced user trust when deployed in real-world settings. Explaining model decisions is essential for **transparency**, **fairness**, and **debugging**. Existing gradient-based XAI methods (e.g., Integrated Gradients) provide **first-order** attributions of individual features but ignore **pairwise interactions** crucial for language understanding. We propose **Integrated Hessians**, extending Integrated Gradients to capture second-order effects, thereby revealing how token pairs jointly influence model outputs.
 
 ---
 
