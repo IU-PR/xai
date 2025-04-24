@@ -36,12 +36,10 @@ Integrated Gradients (IG) addresses some of the limitations of vanilla gradients
 $$IG(x) = (x - x_0) \times \int_{\alpha=0}^{1} \frac{\partial f(x_0 + \alpha(x - x_0))}{\partial x} d\alpha$$
 {{</katex>}}
 
-{{<katex>}}
 Where:
 - $x$ is the input
 - $x_0$ is a baseline input (often zero or random noise)
 - $\alpha$ is a scaling factor along the path from baseline to input
-{{</katex>}}
 
 In practice, the integral is approximated using a Riemann sum:
 
@@ -78,12 +76,10 @@ Mathematically:
 $$SmoothGrad(x) = \frac{1}{n} \sum_{i=1}^{n} S(x + \mathcal{N}(0, \sigma^2))$$
 {{</katex>}}
 
-{{<katex>}}
 Where:
 - $S$ is any saliency map generation function (like vanilla gradients or integrated gradients)
 - $n$ is the number of samples
 - $\mathcal{N}(0, \sigma^2)$ is Gaussian noise with standard deviation $\sigma$
-{{</katex>}}
 
 ### Connection to Monte Carlo Methods
 
