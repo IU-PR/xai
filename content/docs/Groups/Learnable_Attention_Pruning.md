@@ -1,14 +1,14 @@
 ---
 weight: 1
 bookFlatSection: true
-title: "Megatoken"
+title: "Learnable Attention Pruning"
 ---
 
 <style> .markdown a{text-decoration: underline !important;} </style>
 <style> .markdown p{text-align: justify} </style>
 <style> .markdown h2{font-weight: bold;} </style>
 
-# Megatoken
+# Learnable Attention Pruning
 
 ## Introduction
 
@@ -31,7 +31,7 @@ understand it's not just a `cat` — it's a `green cat`.
 This context-mixing happens multiple times, each time sharpening the model's understanding of the sentence.
 
 <div style="width: 50%; margin: auto;">
-    <img src="/Megatoken/attention.png" alt="Self-Attention"/>
+    <img src="/Learnable_Attention_Pruning/attention.png" alt="Self-Attention"/>
 </div>
 
 But here's a question: once `cat` has absorbed info from `green`, do we really need to keep the `green` vector around?
@@ -39,10 +39,10 @@ Chances are, its meaning has already been passed on.
 Keeping both creates redundancy — extra baggage the model has to carry.
 
 <div style="width: 50%; margin: auto;">
-    <img src="/Megatoken/comp_attention.png" alt="Compressional Self-Attention"/>
+    <img src="/Learnable_Attention_Pruning/comp_attention.png" alt="Compressional Self-Attention"/>
 </div>
 
-**Megatoken** is about reducing that baggage.
+**Learnable Attention Pruning** is about reducing that baggage.
 We introduce a method that learns to drop tokens that are no longer adding value — keeping only what's truly important.
 
 ## Learnable Token Selection
@@ -119,7 +119,7 @@ same effect as removing token from tensor:
         {{</katex>}}
     </td>
     <td style="width: 50%; border: none;">
-        <img src="/Megatoken/comp_mask.png" alt="Compressional Mask" style="width: 75%"/>
+        <img src="/Learnable_Attention_Pruning/comp_mask.png" alt="Compressional Mask" style="width: 75%"/>
     </td>
 </tr>
 </table>
@@ -153,7 +153,7 @@ This context is crucial because to generate the text, the decoder predicts just 
 Without seeing what it has generated so far, it would have no idea where it is in the sentence.
 
 <div style="width: 50%; margin: auto;">
-    <img src="/Megatoken/strong_decoder.png" alt="Strong Decoder"/>
+    <img src="/Learnable_Attention_Pruning/strong_decoder.png" alt="Strong Decoder"/>
 </div>
 
 So during training, we also feed part of the original text into the decoder as context.
@@ -161,7 +161,7 @@ But if we feed in too much, the decoder might ignore the encoder's output entire
 text.
 
 <div style="width: 50%; margin: auto;">
-    <img src="/Megatoken/normal_decoder.png" alt="Strong Decoder"/>
+    <img src="/Learnable_Attention_Pruning/normal_decoder.png" alt="Strong Decoder"/>
 </div>
 
 To prevent this, we limit the decoder's context to just the last {{<katex>}}N{{</katex>}} tokens — enough to help with
@@ -236,13 +236,14 @@ This gives us a smooth, differentiable way to encourage shorter, more efficient 
 
 ## Results
 
-We evaluated Megatoken using Flan-T5-small (79M parameters) on the Yelp review dataset, which contains 700K records.
+We evaluated Learnable Attention Pruning using Flan-T5-small (79M parameters) on the Yelp review dataset, which contains
+700K records.
 The model was trained for a single epoch.
 
 Below is a plot showing how the model balances compression and accuracy during training:
 
 <div style="width: 90%; margin: auto;">
-    <img src="/Megatoken/training_dynamics.png" alt="Training Dynamics"/>
+    <img src="/Learnable_Attention_Pruning/training_dynamics.png" alt="Training Dynamics"/>
 </div>
 
 Here:
@@ -266,12 +267,13 @@ To quantify performance, we measured three metrics on the test set:
     </tr>
 </table>
 
-These results show that Megatoken preserves key information while significantly reducing sequence length — achieving
+These results show that Learnable Attention Pruning preserves key information while significantly reducing sequence
+length — achieving
 high fidelity reconstruction with fewer tokens.
 
 ## Explainability
 
-Megatoken doesn't just compress sequences — it preserves what matters.
+Learnable Attention Pruning doesn't just compress sequences — it preserves what matters.
 But how do we know the retained tokens still carry the core meaning?
 And how can we peek into what the model thinks is important?
 
@@ -294,14 +296,14 @@ Here's how it works:
    {{<katex display>}} P(\text{positive}) = \sigma(\text{votes}) {{</katex>}}
 
 <div style="width: 90%; margin: auto;">
-    <img src="/Megatoken/classifier.png" alt="Voting MLP Head"/>
+    <img src="/Learnable_Attention_Pruning/classifier.png" alt="Voting MLP Head"/>
 </div>
 
 This setup lets us test whether the compressed tokens still carry enough information to capture sentiment — and they do.
 The performance is close to what you'd get from the standard attention-based models like BERT.
 
 <div style="width: 90%; margin: auto;">
-    <img src="/Megatoken/cls_comp.png" alt="Voting MLP Head"/>
+    <img src="/Learnable_Attention_Pruning/classifier_comp.png" alt="Voting MLP Head"/>
 </div>
 
 ### SHAP
@@ -332,9 +334,10 @@ Mathematically:
 2. {{<katex>}}f(S_j){{</katex>}} is the output when using subset {{<katex>}}S_j{{</katex>}} of tokens,
 3. {{<katex>}}w_{|S_j|}{{</katex>}} is a weighting term for that subset size.
 
-When we apply SHAP to Megatoken, we get a heatmap that shows which embeddings influence each generated token:
+When we apply SHAP to Learnable Attention Pruning, we get a heatmap that shows which embeddings influence each generated
+token:
 <div style="width: 100%; margin: auto;">
-    <img src="/Megatoken/shap_heatmap.png" alt="SHAP Heatmap"/>
+    <img src="/Learnable_Attention_Pruning/shap_heatmap.png" alt="SHAP Heatmap"/>
 </div>
 
 Each row is an encoder token.
@@ -346,7 +349,7 @@ And the final token — EOS — pulls in the big picture.
 
 ## Conclusion
 
-Megatoken shows that we can reduce sequence length without losing much in terms of performance.
+Learnable Attention Pruning shows that we can reduce sequence length without losing much in terms of performance.
 By learning which tokens are worth keeping, the model becomes more efficient and a bit more interpretable, too.
 
 So far, we've tested it on a small model and a relatively modest dataset.
