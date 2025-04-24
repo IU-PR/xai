@@ -38,6 +38,10 @@ But here's a question: once `cat` has absorbed info from `green`, do we really n
 Chances are, its meaning has already been passed on.
 Keeping both creates redundancy — extra baggage the model has to carry.
 
+<div style="width: 50%; margin: auto;">
+    <img src="/Megatoken/comp_attention.png" alt="Compressional Self-Attention"/>
+</div>
+
 **Megatoken** is about reducing that baggage.
 We introduce a method that learns to drop tokens that are no longer adding value — keeping only what's truly important.
 
