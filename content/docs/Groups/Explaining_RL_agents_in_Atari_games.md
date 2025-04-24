@@ -187,7 +187,7 @@ The FullGrad++ method involves the following steps:
 **Interpretability**: Dynamic weighting makes it easier to understand which layers and features contribute most.
 
 ### Results
-Here we can see the results of explanation for the decisions of AtariNet for different games:
+Here we can see the results of explanation for the decisions of AtariNet for different games by FullGrad and our approach:
 
 ####  Breakout:
 
@@ -198,8 +198,7 @@ Here we can see the results of explanation for the decisions of AtariNet for dif
 ![Breakout Live Fullgrad](/Explaining_RL_agents_in_Atari_games/breakout_live_fullgrad.gif)
 ![Breakout Explanation Fullgrad](/Explaining_RL_agents_in_Atari_games/breakout_live_cam_fullgrad.gif)
 
-
-At the top we see 2 gifs. The left one is actual game where agent is playinig and on the right side we can see the explanation produced by the FullGrad++ method for the actions taken by the agent. As we can see the agent is paying attention on the player itself, the ball and on the nearest blocks which it can break.
+Both algorithms follows the ball and highlights that the ball has great impact on making decision which approves that model make decision as people do. However our approach provides more sharp CAM and the blob is not too wide, which more accurately shows the explanation.
 #### Pong:
 ##### Our approach
 ![Pong Live](/Explaining_RL_agents_in_Atari_games/pong_live.gif)
@@ -208,8 +207,7 @@ At the top we see 2 gifs. The left one is actual game where agent is playinig an
 ![Pong Live Fullgrad](/Explaining_RL_agents_in_Atari_games/pong_live_fullgrad.gif)
 ![Pong Explanation Fullgrad](/Explaining_RL_agents_in_Atari_games/breakout_live_cam_fullgrad.gif)
 
-
-Here we can see that attention mainly focused on the region where the ball is located which is similar to the way how humans play
+The same observation for Pong environment. The model's attention is on the ball and moving platforms, which is correct.
 
 #### Enduro
 ##### Our approach
@@ -219,7 +217,7 @@ Here we can see that attention mainly focused on the region where the ball is lo
 ![Enduro Live Fullgrad](/Explaining_RL_agents_in_Atari_games/enduro_live_fullgrad.gif)
 ![Enduro Explanation Fullgrad](/Explaining_RL_agents_in_Atari_games/enduro_live_cam_fullgrad.gif)
 
-In enduro we can see that agent paying attention on player itself and on the new cars that appeared. In the moment when the agent is made the action the agent stops paying on the cars attention
+For Enduro environment we can see that while FullGrad approach allows us just to see that model is watching on the road, our approach gives more detailed vision that model "watches" cars.  
 
 #### VideoPinball
 
@@ -230,7 +228,7 @@ In enduro we can see that agent paying attention on player itself and on the new
 ![VideoPinball Live Fullgrad](/Explaining_RL_agents_in_Atari_games/videopinball_live_fullgrad.gif)
 ![VideoPinball Explanation Fullgrad](/Explaining_RL_agents_in_Atari_games/videopinball_live_cam_fullgrad.gif)
 
-In video pinball we see that attention is concentrated in score and on the ball.
+And in the VideoPinball game Fullgrad explaines models decision by showing, that model is concentrated on ball, while our approach highlights the more accurate ball activation and two handles and the bottom which model is controlling.
 
 ### Conclusion
 Our experiments across multiple Atari games (Breakout, Pong, Enduro, and Video Pinball) demonstrated that the agent's attention aligns with intuitive gameplay strategies—focusing on the ball, player-controlled elements, and key environmental objects.
