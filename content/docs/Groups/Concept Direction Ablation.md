@@ -24,7 +24,7 @@ Our work focuses on two key models: Qwen-1.8B-chat and YandexGPT-5-Lite-8B-instr
 
 [**Transformer Lens**](https://github.com/TransformerLensOrg/TransformerLens) is a library for doing mechanistic interpretability of GPT-2 Style language models. The goal of mechanistic interpretability is to take a trained model and reverse engineer the algorithms the model learned during training from its weights. You may find more in [documentation](https://transformerlensorg.github.io/TransformerLens/).
 
-![TransformerLens](/static/CDA4LLM/TransformerLens.svg)
+![TransformerLens](/CDA4LLM/TransformerLens.svg)
 
 ### Datasets
 
@@ -67,11 +67,11 @@ Examples:
 
 #### [Qwen-1_8B-chat](https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat)
 
-![Qwen-1_8B-chat](/static/CDA4LLM/Qwen-1_8B-chat/torchinfo.png)
+![Qwen-1_8B-chat](/CDA4LLM/Qwen-1_8B-chat/torchinfo.png)
 
 #### [YandexGPT-5-Lite-8B-instruct](https://huggingface.co/yandex/YandexGPT-5-Lite-8B-instruct)
 
-![YandexGPT-5-Lite-8B-instruct](/static/CDA4LLM/YandexGPT-5-Lite-8B-instruct/torchinfo.png)
+![YandexGPT-5-Lite-8B-instruct](/CDA4LLM/YandexGPT-5-Lite-8B-instruct/torchinfo.png)
 
 ## Approach
 
@@ -79,7 +79,7 @@ Examples:
 
 For example, taking concept of `hamrfulness` we should take 500 samples of both harmful and harmless prompts.
 
-![harmfulness](/static/CDA4LLM/harmfulness.png)
+![harmfulness](/CDA4LLM/harmfulness.png)
 
 ### 2. Probing Step
 
@@ -97,20 +97,31 @@ logits, cache = model.run_with_cache(
 
 Calculate `concepts'` cluster centers
 
-$$ \mu_{i}^{(l)} = \frac{1}{|D_{harmful}|} \sum_{t \in D_{harmful}} {x_{i}^{(l)} (t)} $$
-$$ \nu_{i}^{(l)} = \frac{1}{|D_{harmless}|} \sum_{t \in D_{harmless}} {x_{i}^{(l)} (t)} $$
+{{<katex display>}}
+\mu_{i}^{(l)} = \frac{1}{|D_{harmful}|} \sum_{t \in D_{harmful}} {x_{i}^{(l)} (t)}
+{{</katex>}}
+
+{{<katex display>}}
+\nu_{i}^{(l)} = \frac{1}{|D_{harmless}|} \sum_{t \in D_{harmless}} {x_{i}^{(l)} (t)}
+{{</katex>}}
 
 With usage "difference-in-means" technique we found the `concept direction` (i.e. refusal direction).
 
-$$ r_{i}^{(l)} = \mu_{i}^{(l)} - \nu_{i}^{(l)} $$
+{{<katex display>}}
+r_{i}^{(l)} = \mu_{i}^{(l)} - \nu_{i}^{(l)}
+{{</katex>}}
 
 ### 4. Ablate Using Concept Direction
 
 Intervent activations via subtracting from **activation** `activation projection onto concept direction`.
 
-$$ proj_{r}a = \frac{a \cdot r}{||r||} \cdot \frac{r}{||r||} = (a_l \cdot \widehat{r}) \cdot \widehat{r} $$
+{{<katex display>}}
+proj_{r}a = \frac{a \cdot r}{||r||} \cdot \frac{r}{||r||} = (a_l \cdot \widehat{r}) \cdot \widehat{r}
+{{</katex>}}
 
-$${a}_{l}' \leftarrow a_{l} - proj_{r} a$$
+{{<katex display>}}
+{a}_{l}' \leftarrow a_{l} - proj_{r} a
+{{</katex>}}
 
 ## Results
 
@@ -118,7 +129,7 @@ $${a}_{l}' \leftarrow a_{l} - proj_{r} a$$
 
 Success as in notebook when apply best concept direction (by rules) to all resid_pre, resid_mid, resid_post
 
-![First Success](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-35-55.jpg)
+![First Success](/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-35-55.jpg)
 
 ```python
 fwd_hooks = [
@@ -130,7 +141,7 @@ fwd_hooks = [
 
 When applying ablation to the only one layer the model continues to refuse:
 
-![One Layer Ablation](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-36-42.jpg)
+![One Layer Ablation](/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-36-42.jpg)
 
 ```python
 fwd_hooks = [
@@ -142,7 +153,7 @@ fwd_hooks = [
 
 Next finding that we can ablte only one group among ["resid_pre", "resid_mid", "resid_post"]. In the example above ablation was applied only to "resid_pre".
 
-![Only One Group Ablation](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-36-53.jpg)
+![Only One Group Ablation](/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-36-53.jpg)
 
 ```python
 fwd_hooks = [
@@ -154,27 +165,27 @@ fwd_hooks = [
 
 Not only one layer may support successful refusal direction. The example below shows taking direction not from "blocks.14.hook_resid_pre" but from "blocks.24.hook_resid_pre" (last).
 
-![Anaother Layer of taking refusal direction](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-37-04.jpg)
+![Anaother Layer of taking refusal direction](/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-37-04.jpg)
 
 The following experiments demonstrate how ablation breaks model in terms of making any sence and outputs neither the refusal, neither seeked jailbreak.
 
-![chin chan chon chi](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-37-20.jpg)
+![chin chan chon chi](/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-37-20.jpg)
 
-![chin chan chon chi 2](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-37-32.jpg)
+![chin chan chon chi 2](/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-37-32.jpg)
 
-![!](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-37-41.jpg)
+![!](/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_12-37-41.jpg)
 
 Taking "hook_resid_post" also works fine
 
-![Hook Resid Post](/static/CDA4LLM/Qwen-1_8B-chat/blocks.10.hook_resid_post.png)
+![Hook Resid Post](/CDA4LLM/Qwen-1_8B-chat/blocks.10.hook_resid_post.png)
 
-![Hook Resid Post](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_13-04-33.jpg)
+![Hook Resid Post](/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_13-04-33.jpg)
 
 We also tried to map task onto interlanguage space when concept is not associated with specific language but perceived by llm on concept level.
 
-![Russian Prompt](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_13-30-08.jpg)
+![Russian Prompt](/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_13-30-08.jpg)
 
-![Russian Prompt Continuation](/static/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_13-30-11.jpg)
+![Russian Prompt Continuation](/CDA4LLM/Qwen-1_8B-chat/photo_2025-04-24_13-30-11.jpg)
 
 #### Padding Problem
 
@@ -190,7 +201,7 @@ On collecting probes section we noticed that Qwen model's activations tended to 
 
 | Left Padded                                                                      | Right Padded                                                                                        |
 | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| ![Left Padded Qwen](/static/CDA4LLM/Qwen-1_8B-chat/blocks.14.hook_resid_pre.png) | ![Right Padded Qwen](</static/CDA4LLM/Qwen-1_8B-chat/blocks.14.hook_resid_pre%20(right_paded).png>) |
+| ![Left Padded Qwen](/CDA4LLM/Qwen-1_8B-chat/blocks.14.hook_resid_pre.png) | ![Right Padded Qwen](</CDA4LLM/Qwen-1_8B-chat/blocks.14.hook_resid_pre%20(right_paded).png>) |
 
 ### YandexGPT-5-Lite-8B-instruct
 
@@ -211,11 +222,11 @@ In order to do this, we implemented a simple compliance scoring system that woul
 
 This resulted in the following heatmap:
 
-![HeatMap](/static/CDA4LLM/photo_2025-04-24_13-38-21.jpg)
+![HeatMap](/CDA4LLM/photo_2025-04-24_13-38-21.jpg)
 
-![Compliance score](/static/CDA4LLM/photo_2025-04-24_13-38-09.jpg)
+![Compliance score](/CDA4LLM/photo_2025-04-24_13-38-09.jpg)
 
-![Layer Impact](/static/CDA4LLM/photo_2025-04-24_13-38-12.jpg)
+![Layer Impact](/CDA4LLM/photo_2025-04-24_13-38-12.jpg)
 
 ### Layer 22 Investigation
 
@@ -238,17 +249,17 @@ Several layer combinations(along with corresponding weighting strategies) were t
 
 As it can be seen, when the model is changing its behavior it starts to lose common sense at some point because of shift influence. This can be further fixed by collecting a bigger sample dataset and controlling model hyperparameters finely
 
-![Loosing Common Sense](/static/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-17-04.jpg)
+![Loosing Common Sense](/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-17-04.jpg)
 
 As it can be seen, 22nd + 19/26th layer combination resulted in the most stable results, still making sense at the beginning of a response
 
-![alt](/static/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-18-33.jpg)
+![alt](/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-18-33.jpg)
 
 And high-weighted late layers, like 19 + 22 provided the least aggressive and meaningful responses
 
-![alt](/static/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-19-46.jpg)
+![alt](/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-19-46.jpg)
 
-![alt](/static/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-19-48.jpg)
+![alt](/CDA4LLM/YandexGPT-5-Lite-8B-instruct/photo_2025-04-24_14-19-48.jpg)
 
 ### Cross-lingual Testing
 
