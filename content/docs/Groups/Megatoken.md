@@ -279,13 +279,13 @@ To answer that, we use two tools: probing classifiers and SHAP.
 
 ### Sentiment Probing
 
-Let’s start with a simple task: sentiment classification.
+Let's start with a simple task: sentiment classification.
 
 Instead of stacking a heavy model on top of our compressed sequence (which could hide the true quality of the token
 set), we go lightweight. We attach a small classifier — a probing head — to each token embedding and let every token
 "vote" on the sentiment.
 
-Here’s how it works:
+Here's how it works:
 
 1. Each token embedding {{<katex>}}E_i{{</katex>}} passes through a shared MLP:
    {{<katex display>}} \text{logit}_i = f(E_i) {{</katex>}}
@@ -309,57 +309,40 @@ Even though we've dropped a bunch of tokens, the ones we keep are doing the heav
 
 ### SHAP
 
-Sentiment classification proves the model isn't just guessing — it's actually picking up useful features.
-Meanwhile, SHAP reveals the hidden magic — it shows which tokens are pulling the strings behind the scenes.
+Okay, so the model works — but why does it make the decisions it does?
+SHAP gives us a lens into that.
 
-Shapley values come from game theory and measure how much each part contributes to the outcome.
-It's like pulling your best striker off the field — if your team falls apart, it means they were doing something
-important.
-Keep swapping out players, and you'll start to see who's really carrying the team.
-But remember how players interact with each other.
-A player's performance can depend on the whole team: remove a defender or two, and you might still have a shot, but if
-you send everyone to attack and leave the goalkeeper alone — well, good luck!
-The same concept applies across different scenarios in SHAP.
-Simple recipe: perturb features, compare outcomes, and derive importance.
+SHAP (Shapley Additive Explanations) comes from game theory.
+It figures out which features are truly contributing to the output, and which are just along for the ride.
 
-When reconstructing a sentence, SHAP can help us understand how each encoder embedding influences the tokens generated
-by the decoder.
-But remember — a sentence isn't just one thing.
-It's a whole sequence of tokens, like a series of matches in a tournament.
-So we break it down, one token at a time.
-For each generated word, we remove different features from the encoder and watch how the prediction shifts.
-If the model was confidently predicting `cat` with a probability of 0.9, and that drops to 0.2 after removing a
-feature — that feature clearly mattered.
-SHAP would assign it a high value, saying: this one pulled a lot of weight.
+Think of each token as a player on a team.
+If you bench one and the model's output sudden tanks, that token was doing important work.
+SHAP quantifies that impact — across all combinations of players.
 
-(Nerd warning) Let's peek under the hood for a sec.
-For each feature, we construct two sets of coalitions: one that includes the feature, and one that's identical except it
-leaves the feature out.
-We then compute the difference in model output between these two sets, element by element.
-Each difference is weighted by the probability of selecting that specific coalition.
-Finally, we sum the weighted differences and normalize the result.
-That gives us the SHAP value — a precise measure of the feature's contribution.
-Here is the formula:
+Here's the basic idea:
 
-{{<katex display>}}
-\phi_i = \frac{\sum_{j = 1}^{M}{w_{|S_j|} \left( f(S_j \cup \{ i \}) - f(S_j) \right)}}{\sum_{j=1}^{M}{w_{|S_j|}}}
-{{</katex>}}
+1. Hide different combinations of tokens from the model.
+2. Watch how the model's predictions change when each token (or group) is missing.
+3. Assign a score to each token based on how much its absence affects the output — the bigger the impact, the more
+   important it is.
 
-Where:
+Mathematically:
 
-1. {{<katex>}}M{{</katex>}} is the number of samples,
-2. {{<katex>}}f(S_j){{</katex>}} is the model's prediction for correct with {{<katex>}}S_j{{</katex>}} features,
-3. {{<katex>}}w_{|S_j|}{{</katex>}} is the weight for the coalition of size {{<katex>}}|S|{{</katex>}}.
+{{<katex display>}} \phi_i = \frac{\sum_{j = 1}^{M}{w_{|S_j|} \left( f(S_j \cup { i }) - f(S_j) \right)}}{\sum_
+{j=1}^{M}{w_{|S_j|}}} {{</katex>}}
 
-Now we just repeat this process for every token in the sequence.
-The result is a heatmap that looks something like this:
+1. {{<katex>}}\phi_i{{</katex>}} is the SHAP value for token {{<katex>}}i{{</katex>}},
+2. {{<katex>}}f(S_j){{</katex>}} is the output when using subset {{<katex>}}S_j{{</katex>}} of tokens,
+3. {{<katex>}}w_{|S_j|}{{</katex>}} is a weighting term for that subset size.
 
+When we apply SHAP to Megatoken, we get a heatmap that shows which embeddings influence each generated token:
 <div style="width: 100%; margin: auto;">
     <img src="/Megatoken/shap_heatmap.png" alt="SHAP Heatmap"/>
 </div>
 
-This map shows how much each vector (listed on the left) influences each generated token (lined up at the bottom).
-The brighter the SHAP value, the more that feature matters — meaning, if you removed it, the model's prediction would
-change accordingly.
-Each feature tends to focus on its own little "chunk" of the sentence, pulling in info from nearby words.
-The EOS token captures a summary of the whole sequence — kind of like the model's way of wrapping things up.
+Each row is an encoder token.
+Each column is a generated word.
+Bright spots show strong influence — the pieces the model leaned on when rebuilding the output.
+
+You'll notice something cool: each token tends to specialize, attending to a slice of the sentence.
+And the final token — EOS — pulls in the big picture.
