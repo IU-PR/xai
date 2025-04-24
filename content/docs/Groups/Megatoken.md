@@ -135,7 +135,9 @@ their {{<katex>}}\alpha_i{{</katex>}} score is.
 This approach preserves differentiability and allows the model to learn which tokens matter most.
 
 ## Training
+
 ### Architecture
+
 To train the model to compress language into a smaller set of important tokens, we use an autoencoder setup — a common
 architecture where an encoder learns to summarize data, and a decoder learns to reconstruct it.
 
@@ -163,3 +165,62 @@ positioning, but not enough to reconstruct the input on its own.
 This forces the model to actually use the encoder's compressed memory.
 
 ### Loss Function
+
+The loss function consists of two parts:
+
+{{<katex display>}}
+\mathcal{L} = \mathcal{L}_{\text{CE}} + \lambda \mathcal{L}_{\text{comp}}
+{{</katex>}}
+
+Where:
+
+1. {{<katex>}}\mathcal{L}_{\text{CE}}{{</katex>}} is a Cross-Entropy loss to measure how well the model reconstructs
+   the sequence,
+2. {{<katex>}}\mathcal{L}_{\text{comp}}{{</katex>}} is a compression loss to force model to keep less vectors,
+3. {{<katex>}}\lambda{{</katex>}} is a weight factor for compression, used to balance accuracy and compression.
+
+It might be not obvious how compression loss is calculated in continuous case.
+To do this, we keep track of mask values used to remove the token at each step:
+
+{{<katex display>}}
+\begin{aligned}
+G_i(0) &= 0 \\
+G_i(s) &= \ln(\alpha_i) + G_{i}(s - 1)
+\end{aligned}
+{{</katex>}}
+
+Using the mask values, we can determine whether token might be considered as eliminated or not.
+The token can be considered eliminated if the value of the mask is greater than the dot-product inside the attention
+matrix.
+So we use the following formula to determine whether the token is eliminated at the step {{<katex>}}s{{</katex>}} or
+not:
+
+{{<katex display>}}
+\begin{aligned}
+P_i(s) &= \exp \left( \frac{G_i(s)}{\sqrt{d}} \right) \\
+d &= \frac{KV_{\text{dim}}}{H}
+\end{aligned}
+{{</katex>}}
+
+Where:
+
+1. {{<katex>}}KV_{\text{dim}}{{</katex>}} is the size of key-value vectors,
+2. {{<katex>}}H{{</katex>}} is the number of attention heads
+
+Division by {{<katex>}}\sqrt{d}{{</katex>}} prevents from assuming that the token is eliminated when the mask value is
+big enough to produce small exponent values, but too small to mask the token.
+
+Then the length of the output at the step {{<katex>}}s{{</katex>}} might be calculated as:
+{{<katex display>}}
+L(s) = \sum_{i=0}^{N}{P_i(s)}
+{{</katex>}}
+
+Using the length at the current and previous steps we can calculate the compression ratio:
+{{<katex display>}}
+R(s) = \frac{L(s)}{L(s - 1)}
+{{</katex>}}
+
+Finally, we define the compression loss function as:
+{{<katex display>}}
+\mathcal{L}_{\text{comp}} = \frac{1}{S}\sum_{s=0}^{S}{R(s)^2}
+{{</katex>}}
