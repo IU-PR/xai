@@ -76,10 +76,10 @@ To quantify embedding importance beyond gradients:
 
 ### Integrated Gradients
 
-![IG — meta-llama](./report/blog/figs/ig_meta_llama.png)  
+![IG — meta-llama](/LLamaTS/ig_meta_llama.png)  
 *IG attributions for meta-llama/Llama-3.2-1B-Instruct*  
 
-![IG — research_TS](./report/blog/figs/ig_ikkiren_research.png)  
+![IG — research_TS](/LLamaTS/ig_ikkiren_research.png)  
 *IG attributions for ikkiren/research_TS*
 
 #### Raw Scores & Deltas
@@ -139,10 +139,10 @@ Absolute convergence delta: **620 490.0625**
 
 ### Attention Visualization
 
-![Attention — meta-llama](./report/blog/figs/attn_meta_llama.png)  
+![Attention — meta-llama](/LLamaTS/attn_meta_llama.png)  
 *Layer 0, head 0 for meta-llama*  
 
-![Attention — research_TS](./report/blog/figs/attn_ikkiren_research.png)  
+![Attention — research_TS](/LLamaTS/attn_ikkiren_research.png)  
 *Layer 0, head 0 for research_TS*
 
 #### Key Observations
@@ -156,14 +156,14 @@ Absolute convergence delta: **620 490.0625**
 
 #### meta‑llama/Llama‑3.2‑1B-Instruct
 
-![Ablation](./report/blog/figs/emb_ablation_meta_llama.png)  ![Sensitivity](./report/blog/figs/emb_sensitivity_meta_llama.png)
+![Ablation](/LLamaTS/emb_ablation_meta_llama.png)  ![Sensitivity](/LLamaTS/emb_sensitivity_meta_llama.png)
 
 - **Ablation**: Zeroing "?" boosts the logit (+408 385), so "?" actually inhibits. "олько" is vital (+114 497).
 - **Sensitivity**: The first "С" and "ет" show the highest variance under noise, indicating they’re key for output stability.
 
 #### ikkiren/research_TS
 
-![Ablation](./report/blog/figs/emb_ablation_ikkiren_research.png)  ![Sensitivity](./report/blog/figs/emb_sensitivity_ikkiren_research.png)
+![Ablation](/LLamaTS/emb_ablation_ikkiren_research.png)  ![Sensitivity](/LLamaTS/emb_sensitivity_ikkiren_research.png)
 
 - **Ablation**: "олько" is crucial (+145 365), while "?" remains inhibitory (−395 674).
 - **Sensitivity**: The BOS token and "?" cause the biggest output swings.
