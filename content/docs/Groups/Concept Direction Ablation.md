@@ -22,8 +22,6 @@ lorem ipsum
 
 ![TransformerLens](/static/CDA4LLM/TransformerLens.svg)
 
-<!-- ![TransformerLens](/CDA4LLM/TransformerLens.svg) -->
-
 ### Datasets
 
 [Harmful Behaviour](https://github.com/llm-attacks/llm-attacks/blob/main/data/advbench/harmful_behaviors.csv)
@@ -69,7 +67,7 @@ Examples:
 
 #### [YandexGPT-5-Lite-8B-instruct](https://huggingface.co/yandex/YandexGPT-5-Lite-8B-instruct)
 
-![YandexGPT-5-Lite-8B-instruct](/static/CDA4LLM/yandex-torchinfo.png)
+![YandexGPT-5-Lite-8B-instruct](/static/CDA4LLM/YandexGPT-5-Lite-8B-instruct/torchinfo.png)
 
 ## Approach
 
@@ -190,9 +188,68 @@ On collecting probes section we noticed that Qwen model's activations tended to 
 | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | ![Left Padded Qwen](/static/CDA4LLM/Qwen-1_8B-chat/blocks.14.hook_resid_pre.png) | ![Right Padded Qwen](</static/CDA4LLM/Qwen-1_8B-chat/blocks.14.hook_resid_pre%20(right_paded).png>) |
 
-### Yandex GPT
+### YandexGPT-5-Lite-8B-instruct
 
-...
+The experiments explored layer-specific manipulation of YandexGPT's internal representations to bypass harm and politeness filters.
+
+## Key Experiments
+
+### Systematic Layer Analysis
+
+- Comprehensive evaluation of all 32 transformer layers
+- Implemented compliance scoring system to quantify response appropriateness
+- Generated visualizations of layer impact on model safety mechanisms
+- Identified most effective layers for manipulation
+
+After firstly trying the same approach as for harmful refusal bypassing, which did not give noticeable results, we decided to conduct a more complex analysis of layers. This was done to understand the influence of particular ones to the answer.
+
+In order to do this, we implemented a simple compliance scoring system that would keep track of key words and detect how polite the model was and report of the biggest changes.
+
+This resulted in the following heatmap:
+
+![HeatMap](/static/CDA4LLM/photo_2025-04-24_13-38-21.jpg)
+
+![Compliance score](/static/CDA4LLM/photo_2025-04-24_13-38-09.jpg)
+
+![Layer Impact](/static/CDA4LLM/photo_2025-04-24_13-38-12.jpg)
+
+### Layer 22 Investigation
+
+- Isolated manipulation of layer 22, previously identified as critical for safety mechanisms
+- Applied varying shift scales (3.0-15.0) to test sensitivity
+- Used English offensive prompts to evaluate filter bypassing capabilities
+
+As it can be seen, layer 22 turned out to be the most influential. However, shifting it did not give us any changes. Apparently, several layers combined result in politeness filtering effect.
+
+### Multi-layer Combination
+
+- Tested nine different layer weighting configurations
+- Combined shifts across early, middle, and late transformer layers
+- Configurations included focused approaches (e.g., "High 22") and distributed approaches (e.g., "Multi-layer")
+- Each configuration tested with normal and doubled weights
+
+Several layer combinations(along with corresponding weighting strategies) were tested. They were picked based on layer importance scores and common sense.
+
+### Cross-lingual Testing
+
+- Replicated experiments with Russian language prompts and examples
+- Tested whether layer manipulation techniques transfer across languages
+- Used identical architecture to the English experiments
+
+Cross-lingual concept understanding gave only a partial success, since the model starts to give impolite responses, but in english.
+
+## Results Summary
+
+The experiments revealed that:
+
+1. Layer 22 is particularly influential for safety filtering
+2. Combining multiple layers (particularly 19, 22, and 26) produces stronger effects
+3. Scaling factors significantly impact the degree of filter bypassing
+4. The technique works across languages with similar layer importance patterns
+
+These findings demonstrate that transformer-based language models encode safety mechanisms in specific layers, and these mechanisms can be manipulated through targeted activation shifting.
+
+It seem quite interesting, that such safety mechanics is much harder to bypass compared to obtaining harmful reponses from the model.
 
 ## Conclusion
 
