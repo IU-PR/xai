@@ -346,3 +346,13 @@ Bright spots show strong influence — the pieces the model leaned on when rebui
 
 You'll notice something cool: each token tends to specialize, attending to a slice of the sentence.
 And the final token — EOS — pulls in the big picture.
+
+## Conclusion
+
+Megatoken shows that we can reduce sequence length without losing much in terms of performance.
+By learning which tokens are worth keeping, the model becomes more efficient and a bit more interpretable, too.
+
+So far, we've tested it on a small model and a relatively modest dataset.
+It would be exciting to see how this approach scales — especially with larger models, more complex data, and real-world
+tasks.
+There's a lot of potential here, and we think this is just the start.
