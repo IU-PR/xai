@@ -12,6 +12,8 @@
 
 ---
 
+## [Link to our repository](https://github.com/AlexeyShulmin/xai/tree/main)
+
 <a name="repo"></a>
 ## 1 · Repository Structure
 ```
