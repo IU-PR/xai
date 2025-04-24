@@ -116,178 +116,125 @@ FullGrad is a complete gradient-based explanation method that aggregates gradien
 ### CAM methods example
 Below you can see how heatmaps for each CAM method is works
 ![Comparison](/Explaining_RL_agents_in_Atari_games/difference_in_methods.jpg)
-### Techcnique that we used
 
-We used an approach that merges the strengths of **FullGrad** and **Grad-CAM++** into a unified framework. It is designed to provide highly detailed, high-fidelity saliency maps by:
+---
 
-- Aggregating **gradient information across all layers** like FullGrad
-- Incorporating **second-order gradient weighting** from Grad-CAM++ for better localization
+### What is FullGrad++ (Multi-layer Grad-CAM++)?
 
-This method captures both deep model internals (via bias gradients) and fine-grained sensitivity (via higher-order gradient contributions), producing comprehensive and sharper visual explanations.
+**FullGrad++** is an advanced explainability method that extends the precision of **Grad-CAM++** across **multiple layers**, combining it with FullGrad’s principle of complete layerwise aggregation.
 
+Whereas Grad-CAM++ traditionally analyzes a single layer, FullGrad++ evaluates multiple convolutional and normalization layers, assigning them weights based on their activation magnitudes. This allows the method to capture both deep and shallow features contributing to the model’s prediction, producing detailed and spatially precise saliency maps.
+
+---
 
 ### How it Works
 
-This method consists of the following steps:
+The FullGrad++ method involves the following steps:
 
-1. **Forward Pass and Hooking**:
-   - Register hooks on all layers that contain learnable bias parameters (e.g., `Conv2d`, `BatchNorm2d`) to record:
-     - Their output activations {{<katex>}}A^l{{</katex>}}
-     - Their backpropagated gradients {{<katex>}}\nabla_{A^l} y^c{{</katex>}}
-   - Store bias tensors  {{<katex>}}b^l{{</katex>}} as well for use in explanation
+1. **Hooking All Layers**:
+   - Hooks are registered on all layers that contain activations (e.g., `Conv2d`, `BatchNorm2d`)
+   - For each layer, we collect:
+     - **Forward activations** {{<katex>}} A^l {{</katex>}}
+     - **First-order gradients** {{<katex>}} \nabla_{A^l} y^c {{</katex>}}
 
-2. **Backward Pass with Higher-Order Gradients**:
-   - Perform a backward pass from the model’s output  {{<katex>}}y^c{{</katex>}} for a target class {{<katex>}}c{{</katex>}}
-   - Instead of just using first-order gradients, FullGrad++ optionally computes **second-order gradients**:
+2. **Second-Order Weight Computation (Grad-CAM++ style)**:
+   - For each activation map, compute:
+     - {{<katex>}} g^1 = \frac{\partial y^c}{\partial A^l} {{</katex>}}
+     - {{<katex>}} g^2 = (g^1)^2 {{</katex>}}, {{<katex>}} g^3 = g^2 \cdot g^1 {{</katex>}}
+   - We then calculate the Grad-CAM++ importance weights:
      $$
-     \text{Grad}_{A^l} = \left( \frac{\partial y^c}{\partial A^l} \right)^2
+     \alpha_k^c = \frac{g_k^2}{2g_k^2 + A_k \cdot g_k^3 + \epsilon}
      $$
-   - This increases the saliency of regions where small changes in activation highly influence the prediction, similar to Grad-CAM++
+     where {{<katex>}} A_k {{</katex>}} is the activation and {{<katex>}} g_k {{</katex>}} is the gradient of the {{<katex>}} k {{</katex>}}-th feature map
 
-3. **Bias Gradient Aggregation**:
-   - For each bias layer, compute the saliency as the element-wise product:
-    $$
-     \text{BiasGrad}_{l} = \left| b^l \cdot \left( \frac{\partial y^c}{\partial b^l} \right)^2 \right|
-    $$
-   - These maps are interpolated to match the input size
+3. **Generate Layer-wise CAMs**:
+   - Using weights {{<katex>}} \alpha_k^c {{</katex>}}, compute layer-wise saliency maps:
+     $$
+     \text{CAM}_l = \text{ReLU}\left(\sum_k \alpha_k^c A_k^l\right)
+     $$
 
-4. **Input Gradient Contribution**:
-   - Compute the gradient of the class score with respect to the input image \( x \):
+4. **Aggregation Across Layers**:
+   - Each layer’s saliency map is resized to the input resolution
+   - The final saliency is a **weighted average** of all layer maps:
      $$
-     \text{InputGrad} = x \cdot \left| \frac{\partial y^c}{\partial x} \right|
+     L^c = \frac{1}{\sum_l w_l} \sum_l w_l \cdot \text{CAM}_l
      $$
-   - This highlights sensitive areas in the raw input
-
-5. **Combining and Normalizing**:
-   - Combine all saliency contributions:
-     $$
-     L_{\text{FullGrad++}}^c = \text{InputGrad} + \sum_l \text{BiasGrad}_{l}
-     $$
-   - Smooth the result with a Gaussian filter to reduce noise
-   - Normalize the map to [0, 1] and overlay it on the original input image
+     where {{<katex>}} w_l {{</katex>}} is the average activation energy of the layer, used as a weight to reflect its relevance
 
 ---
 
 ### Implementation Highlights
 
-The method was implemented from scratch in PyTorch without relying on external libraries like `pytorch-grad-cam`. Key implementation details include:
+- **Activation-weighted Aggregation**:
+  Each layer contributes to the final explanation proportionally to its average activation magnitude, serving as a dynamic and data-driven weighting scheme.
 
-- **Hook Registration**:
-  Forward and backward hooks are attached dynamically to all bias layers.
-  
-  ```python
-      def _register_hooks(self):
-        def has_bias(layer):
-            return isinstance(layer, (nn.Conv2d, nn.BatchNorm2d)) and layer.bias is not None
+- **Efficient Layer Registration**:
+  Hooks are registered once on initialization. During inference, all necessary data (activations, gradients) are gathered in one forward-backward pass.
 
-        for layer in self.model.modules():
-            if has_bias(layer):
-                layer_id = id(layer)
-                self.biases.append((layer_id, self._extract_bias(layer).to(self.device)))
+- **Standalone and Framework-agnostic**:
+  No external libraries (like `pytorch-grad-cam`) are used. The implementation is pure PyTorch, ensuring flexibility and transparency.
 
-                def fwd_hook(module, inp, outp):
-                    self.activations.append((id(module), outp))
+- **Normalization and Smoothing**:
+  The output saliency map is resized and normalized for visual overlay. Additional Gaussian smoothing can optionally be applied to reduce noise and enhance interpretability.
 
-                def bwd_hook(module, grad_in, grad_out):
-                    self.gradients.append((id(module), grad_out[0]))
-
-
-                layer.register_forward_hook(fwd_hook)
-                layer.register_backward_hook(bwd_hook)
-  ```
-  
-- **Bias Extraction**:
-  BatchNorm2d biases are computed as:
-    $$
-    b^l = -\frac{\mu \cdot \gamma}{\sqrt{\sigma^2 + \epsilon}} + \beta
-    $$
-
-  where {{<katex>}}\mu{{</katex>}}, {{<katex>}}\sigma^2{{</katex>}}, {{<katex>}}\gamma{{</katex>}}, {{<katex>}}\beta{{</katex>}} are the batch norm parameters.
-
-  
-  ```python
-      def _extract_bias(self, layer):
-        if isinstance(layer, nn.BatchNorm2d):
-            return - (layer.running_mean * layer.weight / torch.sqrt(layer.running_var + layer.eps)) + layer.bias
-        return layer.bias
-  ```
-
-- **Second-Order Derivatives**:
-  Used `torch.autograd.grad(..., create_graph=True)` to compute higher-order terms required for Grad-CAM++ logic.
-  
-  ```python
-          if self.use_second_order:
-            # FullGrad and GradCAM++ — use second-order gradients
-            grad = torch.autograd.grad(score, input_tensor, create_graph=True)[0]
-        else:
-            score.backward(retain_graph=True)
-            grad = input_tensor.grad
-
-        cam = torch.abs(grad * input_tensor).sum(dim=1, keepdim=True)
-  ```
-- **Smoothing**:
-  Applied a 2D Gaussian blur kernel to the final heatmap for improved clarity.
-  
-  ```python
-      def _apply_smoothing(self, saliency, kernel_size=3, sigma=2):
-        """Apply 2D Gaussian smoothing per image"""
-        if kernel_size % 2 == 0:
-            kernel_size += 1
-        channels = saliency.shape[1]
-        coords = torch.arange(kernel_size, dtype=torch.float32) - kernel_size // 2
-        grid = coords.repeat(kernel_size).view(kernel_size, kernel_size)
-        gauss = torch.exp(-(grid**2 + grid.T**2) / (2 * sigma**2))
-        gauss /= gauss.sum()
-
-        kernel = gauss.view(1, 1, kernel_size, kernel_size).repeat(channels, 1, 1, 1)
-        kernel = kernel.to(saliency.device)
-
-        return F.conv2d(saliency, kernel, padding=kernel_size // 2, groups=channels)
-  ```
 ---
 
-### Advantages of this method
+### Advantages of This Approach
 
-- Captures *global context* via multiple layer gradients (like FullGrad)
-- Localizes *fine-grained features* using second-order sensitivity (like Grad-CAM++)
-- Fully differentiable and model-agnostic
-- Smooths and normalizes results for easy visualization
+**Precision**: Second-order weighting from Grad-CAM++ enables more accurate focus on fine-grained regions.  
+**Completeness**: Multi-layer aggregation captures the full feature hierarchy of the model.  
+**Flexibility**: Supports any architecture with convolutional and normalization layers.  
+**Interpretability**: Dynamic weighting makes it easier to understand which layers and features contribute most.
 
 ### Results
 Here we can see the results of explanation for the decisions of AtariNet for different games:
 
 ####  Breakout:
 
+##### Our approach
 ![Breakout Live](/Explaining_RL_agents_in_Atari_games/breakout_live.gif)
-![Breakout Explanation](/Explaining_RL_agents_in_Atari_games/breakout_live_cam.gif)
+![Breakout Explanation](/Explaining_RL_agents_in_Atari_games/breakout_live_cam.gif)  
+##### FullGrad
+![Breakout Live Fullgrad](/Explaining_RL_agents_in_Atari_games/breakout_live_fullgrad.gif)
+![Breakout Explanation Fullgrad](/Explaining_RL_agents_in_Atari_games/breakout_live_cam_fullgrad.gif)
 
 
 At the top we see 2 gifs. The left one is actual game where agent is playinig and on the right side we can see the explanation produced by the FullGrad++ method for the actions taken by the agent. As we can see the agent is paying attention on the player itself, the ball and on the nearest blocks which it can break.
 #### Pong:
+##### Our approach
 ![Pong Live](/Explaining_RL_agents_in_Atari_games/pong_live.gif)
-![Pong Explanation](/Explaining_RL_agents_in_Atari_games/pong_live_cam.gif)
+![Pong Explanation](/Explaining_RL_agents_in_Atari_games/pong_live_cam.gif)  
+##### FullGrad
+![Pong Live Fullgrad](/Explaining_RL_agents_in_Atari_games/pong_live_fullgrad.gif)
+![Pong Explanation Fullgrad](/Explaining_RL_agents_in_Atari_games/breakout_live_cam_fullgrad.gif)
 
 
 Here we can see that attention mainly focused on the region where the ball is located which is similar to the way how humans play
 
 #### Enduro
+##### Our approach
 ![Enduro Live](/Explaining_RL_agents_in_Atari_games/enduro_live.gif)
-![Enduro Explanation](/Explaining_RL_agents_in_Atari_games/enduro_live_cam.gif)
+![Enduro Explanation](/Explaining_RL_agents_in_Atari_games/enduro_live_cam.gif)  
+##### FullGrad
+![Enduro Live Fullgrad](/Explaining_RL_agents_in_Atari_games/enduro_live_fullgrad.gif)
+![Enduro Explanation Fullgrad](/Explaining_RL_agents_in_Atari_games/enduro_live_cam_fullgrad.gif)
 
 In enduro we can see that agent paying attention on player itself and on the new cars that appeared. In the moment when the agent is made the action the agent stops paying on the cars attention
 
 #### VideoPinball
 
-![Videopinball Live](/Explaining_RL_agents_in_Atari_games/videopinball_live.gif)
-![Videopinball Explanation](/Explaining_RL_agents_in_Atari_games/videopinball_live_cam.gif)
+##### Our approach
+![VideoPinball Live](/Explaining_RL_agents_in_Atari_games/videopinball_live.gif)
+![VideoPinball Explanation](/Explaining_RL_agents_in_Atari_games/videopinball_live_cam.gif)  
+##### FullGrad
+![VideoPinball Live Fullgrad](/Explaining_RL_agents_in_Atari_games/videopinball_live_fullgrad.gif)
+![VideoPinball Explanation Fullgrad](/Explaining_RL_agents_in_Atari_games/videopinball_live_cam_fullgrad.gif)
 
 In video pinball we see that attention is concentrated in score and on the ball.
 
 ### Conclusion
 Our experiments across multiple Atari games (Breakout, Pong, Enduro, and Video Pinball) demonstrated that the agent's attention aligns with intuitive gameplay strategies—focusing on the ball, player-controlled elements, and key environmental objects.
-{{<katex>}}
-{{</katex>}}
-
+{{<katex>}}{{</katex>}}
 ### References
 [Atari RL agent](https://github.com/floringogianu/atari-agents/tree/main)
 
