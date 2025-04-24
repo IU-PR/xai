@@ -233,3 +233,34 @@ Finally, we define the compression loss:
 {{</katex>}}
 
 This gives us a smooth, differentiable way to encourage shorter, more efficient representations.
+
+## Results
+
+To test our ideas, we used Flan-T5-small from Google with 79M parameters and Yelp-review dataset with 700K records.
+We trained the model for one epoch.
+Here's the plot with training dynamics.
+
+<div style="width: 90%; margin: auto;">
+    <img src="/Megatoken/training_dynamics.png" alt="Training Dynamics"/>
+</div>
+
+Here:
+
+1. Green line represents reconstruction accuracy
+2. Red line is overall compression ratio
+3. Cyan, magenta, yellow, and black lines are compression ratios at each layer
+
+Also, we calculated accuracy, Self-BLEU and ROUGE metrics over the test set:
+
+<table style="width: fit-content; margin: auto">
+    <tr>
+        <td>Accuracy</td>    
+        <td>BLEU</td>    
+        <td>ROUGE</td>    
+    </tr>
+    <tr>
+        <td>0.98</td>    
+        <td>0.95</td>    
+        <td>0.94</td>    
+    </tr>
+</table>
