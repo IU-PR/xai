@@ -271,51 +271,38 @@ high fidelity reconstruction with fewer tokens.
 
 ## Explainability
 
-We've seen how Megatoken compresses the sequence by dropping redundant tokens.
-But how can we be sure the remaining tokens still carry the essential information needed for downstream tasks?
-Understanding what is preserved and why certain tokens are kept is crucial.
+Megatoken doesn't just compress sequences — it preserves what matters.
+But how do we know the retained tokens still carry the core meaning?
+And how can we peek into what the model thinks is important?
 
-### I. Sentiment Classification
+To answer that, we use two tools: probing classifiers and SHAP.
 
-Let's look at a sentiment classification task. Given a review text,
-we want to classify it as either positive (ratings 4-5) or negative (ratings 1-3).
+### Sentiment Probing
 
-Instead of training a complex classifier like RNN or Transformer, on top of our compressed sequence
-(which might obscure the quality of the sequence itself),
-we can use a simple probing approach.
-We apply a small, independent classifier head to each token's embedding in the compressed sequence.
+Let’s start with a simple task: sentiment classification.
 
-Think of each token in the compressed sequence casting a "vote" on the overall sentiment of the review.
-We use a simple Multi-Layer Perceptron (MLP) head, often called a probing head ({{<katex>}}f_{\text{cls}}{{</katex>}}),
-applied to each token embedding {{<katex>}}E_i{{</katex>}}:
+Instead of stacking a heavy model on top of our compressed sequence (which could hide the true quality of the token
+set), we go lightweight. We attach a small classifier — a probing head — to each token embedding and let every token
+"vote" on the sentiment.
 
-{{<katex display>}}
-\text{logit}_{i} = f_{\text{cls}}(E_i)
-{{</katex>}}
+Here’s how it works:
 
-To get the final sentiment prediction for the entire review, we simply sum these individual token logits.
-Finally, a sigmoid function {{<katex>}}\sigma{{</katex>}} converts this total logit into a probability score between 0
-and 1:
-
-{{<katex display>}}
-P(positive) = \sigma \left( \sum_{i}f_{cls}(E_i) \right)
-{{</katex>}}
+1. Each token embedding {{<katex>}}E_i{{</katex>}} passes through a shared MLP:
+   {{<katex display>}} \text{logit}_i = f(E_i) {{</katex>}}
+2. We sum all the logits: {{<katex display>}} \text{logits} = \sum_{i=0}^{N} \text{logit}_i {{</katex>}}
+3. And squash the result with a sigmoid:
+   {{<katex display>}} P(\text{positive}) = \sigma(\text{logits}) {{</katex>}}
 
 <div style="width: 90%; margin: auto;">
     <img src="/Megatoken/classifier.png" alt="Voting MLP Head"/>
 </div>
 
-This setup allows us to assess if the information distributed across the compressed sequence
-is enough for sentiment analysis, without relying on a complex model to potentially synthesize missing information.
+This setup tells us whether the compressed tokens alone are enough to capture sentiment — no fancy architecture needed.
 
-When we compare the performance of this simple probing classifier on our compressed sequences
-against a standard model like BERT using its full sequence output (e.g., the [CLS] token),
-we find the results are quite similar.
-This suggests that even after significantly reducing the number of tokens,
-the Megatoken approach retains enough signals in the remaining embeddings
-to accurately capture the overall sentiment of the text,
-performing comparably to models using the full original sequence.
-
+The answer?
+Yes.
+Performance is on par with full-sequence models like BERT.
+Even though we've dropped a bunch of tokens, the ones we keep are doing the heavy lifting.
 <div style="width: 90%; margin: auto;">
     <img src="/Megatoken/cls_comp.png" alt="Voting MLP Head"/>
 </div>
