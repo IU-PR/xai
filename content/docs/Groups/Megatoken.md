@@ -236,9 +236,10 @@ This gives us a smooth, differentiable way to encourage shorter, more efficient 
 
 ## Results
 
-To test our ideas, we used Flan-T5-small from Google with 79M parameters and Yelp-review dataset with 700K records.
-We trained the model for one epoch.
-Here's the plot with training dynamics.
+We evaluated Megatoken using Flan-T5-small (79M parameters) on the Yelp review dataset, which contains 700K records.
+The model was trained for a single epoch.
+
+Below is a plot showing how the model balances compression and accuracy during training:
 
 <div style="width: 90%; margin: auto;">
     <img src="/Megatoken/training_dynamics.png" alt="Training Dynamics"/>
@@ -246,11 +247,11 @@ Here's the plot with training dynamics.
 
 Here:
 
-1. Green line represents reconstruction accuracy
-2. Red line is overall compression ratio
-3. Cyan, magenta, yellow, and black lines are compression ratios at each layer
+1. Green shows reconstruction accuracy — how well the decoder recreates the original text,
+2. Red line tracks the overall compression ratio — how many tokens are retained vs. dropped.
+3. Cyan, magenta, yellow, and black lines show compression ratios at different layers of the encoder.
 
-Also, we calculated accuracy, Self-BLEU and ROUGE metrics over the test set:
+To quantify performance, we measured three metrics on the test set:
 
 <table style="width: fit-content; margin: auto">
     <tr>
@@ -264,6 +265,9 @@ Also, we calculated accuracy, Self-BLEU and ROUGE metrics over the test set:
         <td>0.94</td>    
     </tr>
 </table>
+
+These results show that Megatoken preserves key information while significantly reducing sequence length — achieving
+high fidelity reconstruction with fewer tokens.
 
 ## Explainability
 
