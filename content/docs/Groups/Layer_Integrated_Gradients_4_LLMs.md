@@ -66,29 +66,29 @@ This is like asking: "How did each feature contribute as we built up the input p
 The method uses a straight-line path between the baseline and input because:
 1. It's mathematically simple
 2. It preserves symmetry (if two features play identical roles, they get identical attributions)
-3. It requires no knowledge of the network's internal structure[1][6]
+3. It requires no knowledge of the network's internal structure
 
 ### How It Actually Works
 
-1. **Choose a baseline**: A neutral input representing the absence of features (like a black image in vision or a zero embedding for text)[1]
+1. **Choose a baseline**: A neutral input representing the absence of features (like a black image in vision or a zero embedding for text)
 
-2. **Create interpolated inputs**: Generate several points along the straight line from baseline to input (like taking 20-300 steps along the path)[3]
+2. **Create interpolated inputs**: Generate several points along the straight line from baseline to input (like taking 20-300 steps along the path)
 
 3. **Compute gradients at each step**: Calculate how each feature affects the output at each interpolated point
 
-4. **Accumulate the gradients**: Sum up all these gradients for each feature, scaling by the feature's difference from baseline[3]
+4. **Accumulate the gradients**: Sum up all these gradients for each feature, scaling by the feature's difference from baseline
 
 The formula is:
 IntegratedGrads_i(x) = (x_i - x'_i) × ∫(α=0 to 1) [∂F(x' + α×(x-x'))/∂x_i] dα
 
-Where x is your input, x' is your baseline, and F is your model's function.[3]
+Where x is your input, x' is your baseline, and F is your model's function.
 
 ### Why This Works Better
 
 This approach ensures:
 - **Sensitivity**: If changing a feature changes the output, it gets non-zero attribution (unlike simple gradients)
 - **Implementation Invariance**: The attributions don't depend on how the network is implemented, only on what it computes
-- **Completeness**: The attributions add up exactly to the difference between the model's output at input vs. baseline[1]
+- **Completeness**: The attributions add up exactly to the difference between the model's output at input vs. baseline
 
 In practical terms, this means you get attributions that faithfully reflect which features actually matter for the prediction, making the neural network's decision process more transparent and understandable.
 
