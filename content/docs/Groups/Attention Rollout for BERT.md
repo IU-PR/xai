@@ -65,15 +65,8 @@ Attention rollout visualizes how information flows through transformer layers by
 - Identifying influential input tokens for predictions
 
 ### Mathematical foundation
-Given attention matrices $$\( A^1, A^2, ..., A^L \) for \( L \)$$ layers, the rollout is computed as:
+[![Formula](https://github.com/AlSovPich/xai_attention_rollout_for_bert/blob/patch-1/content/docs/Groups/images/formula.png "Formula")](https://github.com/AlSovPich/xai_attention_rollout_for_bert/blob/patch-1/content/docs/Groups/images/formula.png "Formula")
 
-$$\[
-\tilde{A}^l = \frac{1}{H} \sum_{h=1}^H A_h^l + I \\
-\tilde{A}^l = \frac{\tilde{A}^l}{\sum_j \tilde{A}^l_{ij}} \text{ (row norm)} \\
-R = \tilde{A}^L \cdot \tilde{A}^{L-1} \cdot ... \cdot \tilde{A}^1
-\]$$
-
-Where $$\( H \)$$ is the number of heads. This gives us a final attention matrix from each input token to the $$[CLS]$$ token.
 
 ### Why Attention Rollout?
 Attention rollout was chosen as an XAI method for this project due to its focus on attention mechanism which I find to be especially important and interesting. 
@@ -152,7 +145,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-[![Graph](https://github.com/AlSovPich/xai_attention_rollout_for_bert/blob/patch-1/content/docs/Groups/output.png "Graph")](https://github.com/AlSovPich/xai_attention_rollout_for_bert/blob/patch-1/content/docs/Groups/output.png "Graph")
+[![Graph](https://github.com/AlSovPich/xai_attention_rollout_for_bert/blob/patch-1/content/docs/Groups/images/output.png "Graph")](https://github.com/AlSovPich/xai_attention_rollout_for_bert/blob/patch-1/content/docs/Groups/images/output.png "Graph")
 
 ## Conclusion
 Implementation of attention rollout from scratch proved to be interesting and helpful in terms of learning internal workings of ML models and proved itself to be another tool of furthering AI explainability. 
