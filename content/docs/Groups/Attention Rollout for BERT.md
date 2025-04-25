@@ -56,6 +56,9 @@ Despite used model being pre-trained on large corpora of English texts, it was i
 ### Performance
 Model shows sufficiently high accuracy when predicting sentiment of specific reviews, approaching 90% of correct predictions.
 
+### Specifics in terms of Attention
+BERT uses special [CLS] (classification) and [SEP] (separation) tokens at the beginning and at the end of each sentence respectively for the tasks requiring analysis not of individual words, but of sentences and whole texts. [CLS] token starts as meaningless, but later absorbs information about text segments it opens and in the end serves as an embedding of whole segment's meaning. As this project deals with sentiment analysis, [CLS] token stands to be especially important. If accounted for, [CLS] completely dominates attention field, which gives no information on the actual BERT workings and attentions. Thus, service tokens standing for intra-model concepts and not text entities were removed from consideration of attention weights.
+
 ## Attention Rollout Analysis
 ### Conceptual Foundation:
 Attention rollout visualizes how information flows through transformer layers by:
