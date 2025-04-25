@@ -109,7 +109,7 @@ aggregated_attention = aggregated_attention / aggregated_attention.sum(axis=1, k
 IMDB movie review dataset contains texts and labels (positive or negative) of movie reviews. It is aimed for sentiment analysis and is chosen for this project because it is both simple and representative of modern conversational English language which poses special interest for research and thus is a fitting object of analysis.
 
 ## Results
-Upon deeper inspection, emotionally and judgmentally charged words (such as great, boring, terrible) often appear at the beginning of key evaluative phrases (e.g., "great movie", "terribly acted"). These initiating words consistently attract higher attention, indicating BERT's sensitivity to phrase-level sentiment structure. It partially disproves initial hypothesis, showing that BERT primarily assesses not individual words, but meaningful sequences.
+Results of the project show that BERT highly prioritizes two kinds of tokens: those important for structural analysis of text but not bearing emotional stance themselves (initiating), and those which have strong judgemental meaning (evaluational). These initiating words consistently attract higher attention, indicating BERT's sensitivity to phrase-level sentiment structure. It partially disproves initial hypothesis, showing that BERT primarily assesses not individual words, but meaningful sequences. Still, evaluational tokens also bear quite a significant weight.
 
 ### Visualization
 ```python
