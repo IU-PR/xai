@@ -1,4 +1,4 @@
-# BERT Sentiment Prediction Explanation with Attention Rollout
+![image](https://github.com/user-attachments/assets/10c74663-29ae-4693-9439-8a57ea25de7c)# BERT Sentiment Prediction Explanation with Attention Rollout
 
 ## Introduction
 
@@ -9,11 +9,10 @@ Nethertheless, as most of the complex ML models, BERT is uninterpretable for hum
 As I find sentiment analysis task both interesting in terms of potential insights into the nature of human language and important in terms of services based around it, such as advertisements industry, I decided to find an explanation of BERT sentiment prediction with Attention Rollout XAI method.
 
 ## Initial Hypothesis
-It seems reasonable to assume that the most important and the most attended tokens during sentiment analysis tasks are tokens of words bearing strong evaluational or judgemental weight generally or in the given context. In this case, it is expected that words connected to art analysis (e.g. deep, meaningful etc) and entertainment (fun, boring) would dominate the attention field.
-
-
+It seemed reasonable to assume that the most important and the most attended tokens during sentiment analysis tasks are tokens of words bearing strong evaluational or judgemental weight generally or in the given context. In this case, it is expected that words connected to art analysis (e.g. deep, meaningful etc) and entertainment (fun, boring) would dominate the attention field.
 
 ## Bidirectional Encoder Representations from Transformers (BERT)
+[![BERT](https://github.com/AlSovPich/xai_attention_rollout_for_bert/blob/patch-1/content/docs/Groups/images/bert.png "BERT")](https://github.com/AlSovPich/xai_attention_rollout_for_bert/blob/patch-1/content/docs/Groups/images/bert.png "BERT")
 
 ### Conceptual Foundation
 BERT (Bidirectional Encoder Representations from Transformers) is a transformer-based language model that learns contextualized word representations through self-supervised pre-training. For NLP tasks, it provides:
@@ -52,7 +51,7 @@ $$
 ---
 
 ### Training
-As model used is pre-trained on large corpora of English text already, its further re-training on the specific dataset was mostly performed for experiment, which showed low correlation of train and test accuracy and is not important for this project.
+Despite used model being pre-trained on large corpora of English texts, it was important for the sake of the experiment to re-train it on the used dataset. Thus, re-training was performed to allow for analysis of how it would assess and attend tokens in this task specifically, acknowledging for actual patterns of modern conversational language used in movie reviews and similar environments.
 
 ### Performance
 Model shows sufficiently high accuracy when predicting sentiment of specific reviews, approaching 90% of correct predictions.
@@ -69,9 +68,9 @@ Attention rollout visualizes how information flows through transformer layers by
 
 
 ### Why Attention Rollout?
-Attention rollout was chosen as an XAI method for this project due to its focus on attention mechanism which I find to be especially important and interesting. 
+Attention rollout was chosen as an XAI method for this project due to its focus on attention mechanism which I find to be especially important and interesting. Attention analysis allows to detect specific patterns model is looking for in the provided data, thus providing a great direction for research in the explainability field. Explainability is based on bridging the gap between machine and human understanding of data, and understanding how machine attends - breaks down and prioritizes - data is important for it.
 
-As opposed to, e.g, attention flow method, attention rollout was chosen due to its sufficiently low computation time which was welcome due to low amount of computational resources and time available. 
+As opposed to, e.g, attention flow method, attention rollout was chosen due to its sufficiently low computation time which was welcome due to low amount of computational resources and time available. As this project is aimed not on achieving particular practical tasks, but at researching existing method and model in tandem, understanding basics of XAI and AI overall, using computationally heavy methods would be highly inconvenient, ineffective and unresultful.
 
 ### Implementation
 ```python
