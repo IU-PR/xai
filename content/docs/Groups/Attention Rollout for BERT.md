@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/10c74663-29ae-4693-9439-8a57ea25de7c)# BERT Sentiment Prediction Explanation with Attention Rollout
+# BERT Sentiment Prediction Explanation with Attention Rollout
 
 ## Introduction
 
