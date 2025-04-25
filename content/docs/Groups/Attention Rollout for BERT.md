@@ -152,6 +152,8 @@ plt.tight_layout()
 plt.show()
 ```
 
+[![Graph](https://github.com/AlSovPich/xai_attention_rollout_for_bert/blob/patch-1/content/docs/Groups/output.png "Graph")](https://github.com/AlSovPich/xai_attention_rollout_for_bert/blob/patch-1/content/docs/Groups/output.png "Graph")
+
 ## Conclusion
 Implementation of attention rollout from scratch proved to be interesting and helpful in terms of learning internal workings of ML models and proved itself to be another tool of furthering AI explainability. 
 
