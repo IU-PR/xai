@@ -1,7 +1,8 @@
 # Interpretable Rewards in LLM Alignment via PPO vs. REINFORCE
 
 **Author:** Milyausha Shamsutdinova \
-**Date:** May 7, 2025
+**Date:** May 7, 2025 \
+**GitHub repo link:** https://github.com/MilyaushaShamsutdinova/interpretable_rewards_in_RLHF 
 
 
 ## Abstract
