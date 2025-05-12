@@ -1,0 +1,13 @@
+COMPAS Model Report
+Model Performance:
+- MAE: 2.24
+
+Top Features:
+1. c_charge_degree_M: 0.31
+2. race_Hispanic: 0.30
+3. sex_Female: 0.30
+
+Bias Analysis:
+   Group       MAE  Avg Score  Count
+0      1  2.353396   4.638704    911
+1      0  2.140933   4.010096    967
