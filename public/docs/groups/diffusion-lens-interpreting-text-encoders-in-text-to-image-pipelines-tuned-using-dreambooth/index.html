@@ -1,4 +1,21 @@
-<!doctype html><html lang=en-us dir=ltr><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Diffusion Lens: Interpreting Text Encoders in Text-to-Image pipelines # Authors: Ivan Golov, Roman Makeev
+<!doctype html><html lang=en-us dir=ltr><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="
+  Diffusion Lens: Interpreting Text Encoders in Text-to-Image pipelines
+  #
+
+Authors: Ivan Golov, Roman Makeev
+To see the implementation, visit our 
+  github project.
+
+
+
+
+  Introduction
+  #
+
+In this work, we introduce an interpretable, end-to-end framework that enhances Stable Diffusion v1.5 model fine‑tuned via the 
+  DreamBooth method [1] to generate high‑fidelity, subject‑driven images from as few reference examples.
+While DreamBooth effectively personalizes generation by associating a unique rare token with the target concept, the internal process through which textual prompts are transformed into visual representations remains opaque. To bridge this gap, we integrate 
+  Diffusion Lens [2], a visualization technique that decodes the text encoder’s intermediate hidden states into images, producing a layer‑by‑layer sequence that illuminates how semantic concepts emerge and refine over the course of encoding."><meta name=theme-color content="#FFFFFF"><meta name=color-scheme content="light dark"><meta property="og:url" content="http://localhost:1313/docs/groups/diffusion-lens-interpreting-text-encoders-in-text-to-image-pipelines-tuned-using-dreambooth/"><meta property="og:site_name" content="XAI"><meta property="og:title" content="Diffusion Lens: Interpreting Text Encoders in Text-to-Image pipelines"><meta property="og:description" content="Diffusion Lens: Interpreting Text Encoders in Text-to-Image pipelines # Authors: Ivan Golov, Roman Makeev
 To see the implementation, visit our github project.
 Introduction # In this work, we introduce an interpretable, end-to-end framework that enhances Stable Diffusion v1.5 model fine‑tuned via the DreamBooth method [1] to generate high‑fidelity, subject‑driven images from as few reference examples.
 While DreamBooth effectively personalizes generation by associating a unique rare token with the target concept, the internal process through which textual prompts are transformed into visual representations remains opaque."><meta name=theme-color content="#FFFFFF"><meta name=color-scheme content="light dark"><meta property="og:title" content="Diffusion Lens: Interpreting Text Encoders in Text-to-Image pipelines"><meta property="og:description" content="Diffusion Lens: Interpreting Text Encoders in Text-to-Image pipelines # Authors: Ivan Golov, Roman Makeev
